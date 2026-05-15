@@ -145,14 +145,6 @@
             color: var(--primary);
         }
 
-        .sidebar-footer {
-            padding: 1.5rem;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.3);
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
         /* Overlay for mobile */
         .sidebar-overlay {
             position: fixed;
@@ -559,10 +551,6 @@
                     </a>
                 </li>
             </ul>
-
-            <div class="sidebar-footer">
-                &copy; 2026 JKN Kedah<br>Sektor Penyakit Tidak Berjangkit
-            </div>
         </aside>
 
         <!-- MAIN CONTENT -->
@@ -606,6 +594,10 @@
                     <div class="dashboard-grid" id="dashboard-container">
                         <!-- Cards injected here via JS -->
                     </div>
+
+                    <div style="text-align: center; color: rgba(255,255,255,0.4); font-size: 0.9rem; padding-top: 3rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05);">
+                        &copy; 2026 JKN Kedah<br>Unit Kawalan Penyakit Tidak Berjangkit
+                    </div>
                 </div>
 
                 <!-- VIEW: KALENDAR -->
@@ -618,13 +610,13 @@
                     <div class="calendar-notice">
                         <i class="fa-solid fa-circle-info" style="font-size: 1.5rem; color: #3b82f6;"></i>
                         <div style="flex: 1;">
-                            <strong>Kalendar tidak dipaparkan?</strong> Jika pelayar web anda menyekat paparan kalendar ini, sila buka pautan secara terus.
+                            <strong>Akses Kalendar Awam:</strong> Ini adalah jadual rasmi Unit NCD JKN Kedah. Pastikan kalendar ini telah ditetapkan kepada 'Public' di dalam tetapan Google Calendar.
                         </div>
-                        <a href="https://calendar.google.com/calendar/u/0/r/day" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka Tab Baru</a>
+                        <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka Tab Baru</a>
                     </div>
 
-                    <div class="iframe-container">
-                        <iframe src="https://calendar.google.com/calendar/u/0/r/day" width="100%" height="100%" frameborder="0" scrolling="yes"></iframe>
+                    <div class="iframe-container" style="background: #fff; border-radius: 20px; padding: 10px;">
+                        <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FKuala_Lumpur&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
                     </div>
                 </div>
 
