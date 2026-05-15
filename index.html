@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Portal myNCDKedah</title>
+    <title>MyNCDKedah</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0b0714">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="myNCDKedah">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3063/3063138.png">
+    <meta name="apple-mobile-web-app-title" content="MyNCDKedah">
+    <link rel="apple-touch-icon" href="./icon.png">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,7 +24,7 @@
             --card-border: rgba(168, 85, 247, 0.2);
             --text-main: #f8fafc;
             --text-muted: #cbd5e1;
-            --modal-bg: #151123;
+            --sidebar-bg: rgba(11, 7, 20, 0.95);
         }
 
         * {
@@ -44,103 +44,229 @@
             min-height: 100vh;
             color: var(--text-main);
             display: flex;
-            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        /* View Switching */
-        .view-section {
+        /* App Layout */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 200;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: #fff;
+            padding: 5px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c084fc, #e879f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 1rem;
+            flex: 1;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 1.05rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2), transparent);
+            border-left: 3px solid var(--primary);
+            color: #fff;
+        }
+
+        .sidebar-nav a:hover i {
+            transform: scale(1.1);
+            color: var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 150;
             display: none;
-            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .view-section.active {
+        .sidebar-overlay.active {
             display: block;
+            opacity: 1;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        /* Main Content Area */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: calc(100% - 280px);
+            transition: margin 0.3s;
         }
 
         /* Header */
         header {
-            background: rgba(11, 7, 20, 0.8);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--card-border);
+            background: rgba(11, 7, 20, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             padding: 1.25rem 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .header-title h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, #c084fc, #e879f9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-title i {
-            font-size: 1.8rem;
-            color: #c084fc;
-        }
-
-        .btn-settings {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
             cursor: pointer;
-            transition: all 0.3s;
+            margin-right: 1.5rem;
         }
 
-        .btn-settings:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: rotate(45deg);
+        .header-date {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-left: auto;
         }
 
-        /* Main Content */
         main {
             flex: 1;
-            padding: 3rem 2rem;
-            max-width: 1280px;
+            padding: 2rem;
+            max-width: 1200px;
             margin: 0 auto;
             width: 100%;
         }
 
         .section-header {
             margin-bottom: 2.5rem;
-            text-align: center;
         }
         
         .section-header h2 {
             font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
         .section-header p {
             color: var(--text-muted);
             font-size: 1.05rem;
-            max-width: 600px;
-            margin: 0 auto;
         }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner */
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* Announcement Banner */
         .announcement-banner {
@@ -154,7 +280,7 @@
             gap: 1.25rem;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            display: none; /* hidden by default */
         }
         
         .announcement-icon {
@@ -172,10 +298,21 @@
             flex: 1;
         }
 
+        /* Error state */
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: none;
+        }
+
         /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.5rem;
         }
 
@@ -203,10 +340,7 @@
 
         .card-glow {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
+            top: 0; left: 0; right: 0; height: 4px;
             background: var(--card-color, var(--primary));
             opacity: 0.7;
             transition: opacity 0.3s ease, box-shadow 0.3s ease;
@@ -218,10 +352,10 @@
         }
 
         .card-header-flex {
+            margin-bottom: 1rem;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
+            align-items: center;
         }
 
         .card-icon {
@@ -281,521 +415,261 @@
             box-shadow: 0 8px 20px -5px var(--card-color, var(--primary));
         }
 
-        /* Settings Page Specifics */
-        .settings-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .btn-back {
+        /* Settings Forms */
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
             transition: all 0.3s;
         }
 
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(-4px);
-        }
-
-        .settings-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        .settings-panel {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid var(--card-border);
-            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-            height: fit-content;
-        }
-
-        .settings-panel h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 1rem;
-        }
-
-        .settings-panel h3 i {
-            color: var(--primary);
-        }
-
-        /* Forms */
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.95rem;
-            color: #e2e8f0;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="password"],
-        .form-group input[type="url"],
-        .form-group textarea {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            background: rgba(0, 0, 0, 0.5);
-            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Color Picker Styling */
-        .color-picker-wrapper {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .color-presets {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .color-preset {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-        }
-
-        .color-preset:hover {
-            transform: scale(1.15);
-        }
-        
-        .color-preset.selected {
-            border-color: white;
-            box-shadow: 0 0 12px currentColor;
-            transform: scale(1.1);
-        }
-
-        .color-custom-row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 1rem;
-        }
-
-        .color-custom-row input[type="color"] {
-            -webkit-appearance: none;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: none;
-            padding: 0;
-        }
-
-        .color-custom-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-        .color-custom-row input[type="color"]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 8px; }
-
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 0.5rem;
-            transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(147, 51, 234, 0.3);
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.5);
-            filter: brightness(1.1);
-        }
-
-        /* List Dashboards */
-        .dashboard-list-item {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .dashboard-list-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .dashboard-list-name {
-            font-weight: 600;
-            font-size: 1.05rem;
+        .btn-primary {
+            background: var(--primary);
             color: #fff;
-            margin-bottom: 0.25rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .dashboard-list-url {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            width: 40px;
-            height: 40px;
+            border: none;
+            padding: 0.8rem 1.5rem;
             border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
+            transition: all 0.3s;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            gap: 0.5rem;
+            text-decoration: none;
         }
 
-        .btn-delete:hover {
-            background: #ef4444;
-            color: white;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
         }
 
-        /* Modal Auth */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            padding: 1rem;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal {
-            background: var(--modal-bg);
-            border-radius: 24px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(168, 85, 247, 0.2);
-            transform: translateY(30px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .modal-overlay.active .modal {
-            transform: translateY(0) scale(1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .settings-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
             margin-bottom: 2rem;
         }
 
-        .close-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: all 0.2s;
+        #password-screen {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-
-        #error-msg {
-            color: #f87171;
-            font-size: 0.9rem;
-            margin-top: 0.75rem;
-            display: none;
-            font-weight: 500;
-            background: rgba(239, 68, 68, 0.1);
-            padding: 0.75rem;
-            border-radius: 8px;
-            border-left: 3px solid #ef4444;
-        }
-
-        footer {
+            padding: 4rem 2rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            max-width: 400px;
+            margin: 0 auto;
             text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            margin-top: auto;
         }
 
-        /* Install PWA Prompt Customization */
-        #install-prompt {
-            display: none;
-            background: linear-gradient(90deg, #1e1b4b, #312e81);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            left: 0;
+        .iframe-container {
             width: 100%;
-            z-index: 1000;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: space-between;
+            height: 70vh;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            background: #fff; /* Calendar background */
         }
-        .btn-install {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-left: 1rem;
+        
+        .calendar-notice {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         /* Responsive */
         @media (max-width: 900px) {
-            .settings-grid {
-                grid-template-columns: 1fr;
+            .sidebar {
+                transform: translateX(-100%);
             }
-        }
-        @media (max-width: 768px) {
-            header {
-                padding: 1rem 1.5rem;
+            .sidebar.open {
+                transform: translateX(0);
             }
-            .header-title h1 {
-                font-size: 1.4rem;
+            .main-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+            .menu-btn {
+                display: block;
+            }
+            .header-date {
+                display: none;
+            }
+            main {
+                padding: 1.5rem 1rem;
             }
             .dashboard-grid {
                 grid-template-columns: 1fr;
-            }
-            main {
-                padding: 2rem 1.25rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Install PWA Banner -->
-    <div id="install-prompt">
-        <span><i class="fa-solid fa-mobile-screen"></i> Pasang aplikasi myNCDKedah di peranti anda!</span>
-        <button class="btn-install" id="install-btn">Pasang App</button>
-    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- VIEW: HOME -->
-    <div id="view-home" class="view-section active">
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-layer-group"></i>
-                <h1>Portal myNCDKedah</h1>
+    <div class="app-wrapper">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="./icon.png" alt="MyNCDKedah Icon" class="sidebar-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <i class="fa-solid fa-layer-group" style="font-size: 3rem; color: #c084fc; display: none;"></i>
+                <h2>MyNCDKedah</h2>
             </div>
-            <button class="btn-settings" onclick="openAuthModal()" title="Tetapan Admin">
-                <i class="fa-solid fa-gear"></i>
-            </button>
-        </header>
+            
+            <ul class="sidebar-nav">
+                <li>
+                    <a class="nav-link active" data-target="view-dashboard" onclick="switchView('view-dashboard', this)">
+                        <i class="fa-solid fa-house"></i> Dashboard NCD
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" data-target="view-calendar" onclick="switchView('view-calendar', this)">
+                        <i class="fa-regular fa-calendar-days"></i> Kalendar NCD
+                    </a>
+                </li>
+                <li>
+                    <a class="nav-link" data-target="view-settings" onclick="switchView('view-settings', this)">
+                        <i class="fa-solid fa-gear"></i> Tetapan
+                    </a>
+                </li>
+                <li style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <a id="sidebar-install-btn">
+                        <i class="fa-solid fa-mobile-screen"></i> Simpan Sebagai App
+                    </a>
+                </li>
+            </ul>
 
-        <main>
-            <div class="section-header">
-                <h2>Koleksi Dashboard NCD</h2>
-                <p>Akses pantas ke semua dashboard pemantauan dan pendaftaran myNCD dalam satu portal pintar.</p>
+            <div class="sidebar-footer">
+                &copy; 2026 JKN Kedah<br>Sektor Penyakit Tidak Berjangkit
             </div>
+        </aside>
 
-            <div id="announcement-container" style="display: none;">
-                <div class="announcement-banner">
-                    <i class="fa-solid fa-bullhorn announcement-icon"></i>
-                    <div class="announcement-text" id="announcement-text-display"></div>
-                </div>
-            </div>
-
-            <div class="dashboard-grid" id="dashboard-container">
-                <!-- Cards injected here -->
-            </div>
-        </main>
-    </div>
-
-    <!-- VIEW: SETTINGS -->
-    <div id="view-settings" class="view-section">
-        <header>
-            <div class="header-title">
-                <i class="fa-solid fa-gear"></i>
-                <h1>Tetapan Portal</h1>
-            </div>
-            <button class="btn-back" onclick="switchView('view-home')" title="Kembali ke Laman Utama">
-                <i class="fa-solid fa-house"></i>
-            </button>
-        </header>
-
-        <main>
-            <div class="settings-header">
-                <button class="btn-back" onclick="switchView('view-home')">
-                    <i class="fa-solid fa-arrow-left"></i>
+        <!-- MAIN CONTENT -->
+        <div class="main-wrapper">
+            <header>
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
-                <h2>Pengurusan Admin</h2>
-            </div>
+                <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+                    MyNCDKedah
+                </div>
+                <div class="header-date" id="current-date">
+                    --
+                </div>
+            </header>
 
-            <div class="settings-grid">
-                <!-- Left Column -->
-                <div>
-                    <!-- Pesanan Panel -->
-                    <div class="settings-panel" style="margin-bottom: 2rem;">
-                        <h3><i class="fa-solid fa-bullhorn"></i> Pesanan Kepada Pengguna</h3>
-                        <div class="form-group">
-                            <label>Teks Pesanan / Pengumuman</label>
-                            <textarea id="setting-announcement" placeholder="Cth: Peringatan mesyuarat pada 25 Mei 2026. Sila kemaskini data di dashboard KMS2026..."></textarea>
-                            <span class="input-hint">Pesanan ini akan dipaparkan di bahagian atas halaman utama. Biarkan kosong untuk buang pesanan.</span>
-                        </div>
-                        <button class="btn-submit" onclick="saveAnnouncement()">Simpan Pesanan</button>
+            <main>
+                <!-- VIEW: DASHBOARD -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="section-header">
+                        <h2>Koleksi Dashboard NCD</h2>
+                        <p>Akses pantas ke semua dashboard pemantauan pendaftaran dan laporan.</p>
                     </div>
 
-                    <!-- Tambah Dashboard Panel -->
-                    <div class="settings-panel">
-                        <h3><i class="fa-solid fa-plus-circle"></i> Tambah Dashboard Baharu</h3>
-                        <div class="form-group">
-                            <label>Nama Dashboard</label>
-                            <input type="text" id="dash-name" placeholder="Cth: Dashboard KMS2026">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Penerangan Ringkas</label>
-                            <textarea id="dash-desc" placeholder="Cth: Paparan data dan analisis..."></textarea>
-                        </div>
+                    <div id="loader">
+                        <div class="spinner"></div>
+                        <p>Memuat turun senarai pautan...</p>
+                    </div>
 
-                        <div class="form-group">
-                            <label>URL / Pautan Dashboard</label>
-                            <input type="url" id="dash-url" placeholder="https://...">
-                        </div>
+                    <div class="error-state" id="error-box">
+                        <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h3>Gagal Memuat Turun Data</h3>
+                        <p>Sila pastikan ID Google Sheets anda telah dimasukkan ke dalam fail HTML dengan betul.</p>
+                    </div>
 
-                        <div class="form-group">
-                            <label>Ikon FontAwesome (Pilihan)</label>
-                            <input type="text" id="dash-icon" placeholder="Cth: fa-chart-pie" value="fa-chart-line">
-                        </div>
+                    <div class="announcement-banner" id="announcement-banner">
+                        <i class="fa-solid fa-bullhorn announcement-icon"></i>
+                        <div class="announcement-text" id="announcement-text-display"></div>
+                    </div>
 
-                        <div class="form-group">
-                            <label>Tona Warna</label>
-                            <div class="color-picker-wrapper">
-                                <div class="color-presets">
-                                    <div class="color-preset selected" style="background: #a855f7; color: #a855f7;" data-color="#a855f7" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #ec4899; color: #ec4899;" data-color="#ec4899" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #f43f5e; color: #f43f5e;" data-color="#f43f5e" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #f97316; color: #f97316;" data-color="#f97316" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #eab308; color: #eab308;" data-color="#eab308" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #10b981; color: #10b981;" data-color="#10b981" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #06b6d4; color: #06b6d4;" data-color="#06b6d4" onclick="selectColor(this)"></div>
-                                    <div class="color-preset" style="background: #3b82f6; color: #3b82f6;" data-color="#3b82f6" onclick="selectColor(this)"></div>
-                                </div>
-                                <div class="color-custom-row">
-                                    <span style="font-size: 0.9rem; color: #cbd5e1;">Atau kustom:</span>
-                                    <input type="color" id="dash-color-custom" value="#a855f7" onchange="selectCustomColor(this)">
-                                </div>
-                            </div>
-                            <input type="hidden" id="dash-color-final" value="#a855f7">
-                        </div>
-                        <button class="btn-submit" onclick="addDashboard()">Simpan Pautan</button>
+                    <div class="dashboard-grid" id="dashboard-container">
+                        <!-- Cards injected here via JS -->
                     </div>
                 </div>
 
-                <!-- Right Column (List) -->
-                <div class="settings-panel">
-                    <h3><i class="fa-solid fa-list-check"></i> Urus Senarai Pautan</h3>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Senarai di bawah merupakan dashboard yang telah ditambahkan. Padam mana-mana pautan lama di sini.</p>
+                <!-- VIEW: KALENDAR -->
+                <div id="view-calendar" class="view-section">
+                    <div class="section-header">
+                        <h2>Kalendar Unit NCD</h2>
+                        <p>Jadual perancangan aktiviti dan mesyuarat peringkat negeri Kedah.</p>
+                    </div>
                     
-                    <div id="settings-dashboard-list">
-                        <!-- List injected here -->
+                    <div class="calendar-notice">
+                        <i class="fa-solid fa-circle-info" style="font-size: 1.5rem; color: #3b82f6;"></i>
+                        <div style="flex: 1;">
+                            <strong>Kalendar tidak dipaparkan?</strong> Jika pelayar web anda menyekat paparan kalendar ini, sila buka pautan secara terus.
+                        </div>
+                        <a href="https://calendar.google.com/calendar/u/0/r/day" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka Tab Baru</a>
+                    </div>
+
+                    <div class="iframe-container">
+                        <iframe src="https://calendar.google.com/calendar/u/0/r/day" width="100%" height="100%" frameborder="0" scrolling="yes"></iframe>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <footer>
-        &copy; 2026 Sektor Penyakit Tidak Berjangkit (NCD), Jabatan Kesihatan Negeri Kedah
-    </footer>
+                <!-- VIEW: TETAPAN (SETTINGS) -->
+                <div id="view-settings" class="view-section">
+                    <div class="section-header">
+                        <h2>Tetapan Sistem</h2>
+                        <p>Akses pangkalan data untuk mengurus dashboard dan pesanan.</p>
+                    </div>
 
-    <!-- Auth Modal -->
-    <div class="modal-overlay" id="auth-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Akses Pentadbir (Admin)</h2>
-                <button class="close-btn" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="form-group">
-                <label>Kata Laluan</label>
-                <input type="password" id="password-input" placeholder="Masukkan kata laluan...">
-                <div id="error-msg"><i class="fa-solid fa-circle-exclamation"></i> Kata laluan tidak sah.</div>
-            </div>
-            <button class="btn-submit" onclick="verifyPassword()">Sahkan Akses</button>
+                    <!-- Password Gate -->
+                    <div id="password-screen">
+                        <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <h3 style="margin-bottom: 1.5rem;">Akses Admin Sahaja</h3>
+                        <input type="password" id="admin-password" class="form-control" placeholder="Masukkan kata laluan" style="margin-bottom: 1rem; text-align: center;">
+                        <button onclick="checkPassword()" class="btn-primary">Log Masuk</button>
+                        <p id="password-error" style="color: #ef4444; margin-top: 1rem; display: none;">Kata laluan salah.</p>
+                    </div>
+
+                    <!-- Admin Panel (Hidden initially) -->
+                    <div id="admin-panel" style="display: none;">
+                        
+                        <div class="settings-card" style="text-align: center;">
+                            <i class="fa-solid fa-database" style="color: #10b981; font-size: 3.5rem; margin-bottom: 1.5rem;"></i>
+                            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Pangkalan Data Berpusat</h3>
+                            <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Semua penambahan dashboard baharu, pemadaman rekod, dan pengemaskinian pesanan penting (Banner) kini diuruskan sepenuhnya melalui fail Google Sheets utama.</p>
+                            
+                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                                <i class="fa-solid fa-file-excel"></i> Buka Google Sheets
+                            </a>
+                            
+                            <div style="margin-top: 3rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                                <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini:</h4>
+                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
+                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan | URL | Ikon FontAwesome | Kod Warna).</li>
+                                    <li><strong>Tukar Pesanan Penting:</strong> Cari baris yang bernama <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #f472b6;">PESANAN_ADMIN</code> dan ubah teks di kolum Penerangan. Padam teks untuk hilangkan banner pengumuman.</li>
+                                    <li>Perubahan yang disimpan di dalam Google Sheets akan dipaparkan secara automatik kepada semua pengguna (staf) sebaik sahaja portal ini di-refresh.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin-top: 1rem;">Log Keluar</button>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
@@ -809,232 +683,211 @@
             });
         }
 
-        // PWA Install Prompt Logic
+        // PWA Install Logic
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('install-prompt').style.display = 'flex';
         });
 
-        document.getElementById('install-btn').addEventListener('click', async () => {
+        document.getElementById('sidebar-install-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('install-prompt').style.display = 'none';
-                }
                 deferredPrompt = null;
+            } else {
+                alert("Aplikasi ini sudah dipasang, atau pelayar web anda tidak menyokong fungsi ini secara automatik.");
             }
+            toggleSidebar();
         });
 
-        // App Data
-        const defaultDashboards = [
-            { id: 1, name: "Dashboard KMS2026", desc: "Pemantauan program Jelajah Kedah Minda Sejahtera.", url: "#", icon: "fa-brain", color: "#a855f7" },
-            { id: 2, name: "NHSI PWA Dashboard", desc: "Sistem saringan kesihatan kebangsaan.", url: "#", icon: "fa-mobile-screen", color: "#3b82f6" },
-            { id: 3, name: "Sistem Carian Fasiliti", desc: "Carian pangkalan data kod fasiliti.", url: "#", icon: "fa-magnifying-glass-location", color: "#10b981" },
-            { id: 4, name: "Dashboard CRC Reten", desc: "Penjanaan laporan reten rasmi KKM.", url: "crc_dashboard_v2.html", icon: "fa-notes-medical", color: "#f43f5e" }
-        ];
+        // Set Date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', options);
 
-        const MASTER_PASSWORD = "ncdkedah2026";
-        let dashboards = [];
-        let announcement = "";
-
-        // Initialization
-        function init() {
-            // Load Dashboards
-            const storedDash = localStorage.getItem('myNCD_dashboards');
-            if (storedDash) {
-                dashboards = JSON.parse(storedDash);
-            } else {
-                dashboards = [...defaultDashboards];
-                localStorage.setItem('myNCD_dashboards', JSON.stringify(dashboards));
+        // Sidebar / UI Logic
+        function toggleSidebar() {
+            if(window.innerWidth <= 900) {
+                document.getElementById('sidebar').classList.toggle('open');
+                document.getElementById('sidebarOverlay').classList.toggle('active');
             }
-
-            // Load Announcement
-            announcement = localStorage.getItem('myNCD_announcement') || "";
-            document.getElementById('setting-announcement').value = announcement;
-            renderAnnouncement();
-            
-            renderHomeCards();
-            renderSettingsList();
         }
 
-        // Views Logic
-        function switchView(viewId) {
+        function switchView(targetId, element) {
+            // Update nav active state
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Update views
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            window.scrollTo(0, 0);
+            document.getElementById(targetId).classList.add('active');
+
+            // Close sidebar on mobile
+            if(window.innerWidth <= 900) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            }
             
-            if (viewId === 'view-home') {
-                renderHomeCards();
-                renderAnnouncement();
+            // Refresh dashboards if switching back
+            if(targetId === 'view-dashboard') {
+                fetchDashboards();
             }
         }
 
-        // Rendering Home
-        function renderHomeCards() {
+        // ----------------------------------------------------
+        // GOOGLE SHEETS DATABASE LOGIC
+        // ----------------------------------------------------
+        
+        // MAKLUMAN UNTUK ADMIN: Masukkan ID Google Sheet anda di bawah.
+        // Format Sheet MESTI ada 5 Lajur: Nama | Penerangan | URL | Ikon | Warna
+        // Untuk Papar Pengumuman: Letak perkataan PESANAN_ADMIN di kolum "Nama" dan letak mesej di kolum "Penerangan".
+        
+        const GOOGLE_SHEET_ID = 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI'; 
+        
+        const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
+        const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
+
+        // Update the admin link
+        document.getElementById('btn-open-sheet').href = EDIT_URL;
+
+        async function fetchDashboards() {
             const container = document.getElementById('dashboard-container');
+            const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('error-box');
+            
+            // Reset views
             container.innerHTML = '';
+            errorBox.style.display = 'none';
+            document.getElementById('announcement-banner').style.display = 'none';
+            loader.style.display = 'flex';
 
-            dashboards.forEach(dash => {
-                const color = dash.color || '#a855f7';
-                const desc = dash.desc || 'Paparan interaktif sistem.';
+            if(GOOGLE_SHEET_ID === 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI') {
+                loader.style.display = 'none';
+                renderDummyData();
+                return;
+            }
+            
+            try {
+                const response = await fetch(TSV_URL, { cache: "no-store" });
+                if (!response.ok) throw new Error("Network response was not ok");
                 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.style.setProperty('--card-color', color);
+                const text = await response.text();
+                const rows = text.split('\n');
                 
-                // NO DELETE BUTTON HERE
-                card.innerHTML = `
-                    <div class="card-glow"></div>
-                    <div class="card-header-flex">
-                        <div class="card-icon">
-                            <i class="fa-solid ${dash.icon || 'fa-chart-line'}"></i>
+                let announcementText = "";
+                let cardsHtml = "";
+                let cardsFound = 0;
+
+                // Skip header (i=0)
+                for (let i = 1; i < rows.length; i++) {
+                    if(!rows[i].trim()) continue;
+                    
+                    const cols = rows[i].split('\t');
+                    if (cols.length < 3) continue;
+
+                    const name = cols[0].trim();
+                    const desc = cols[1] ? cols[1].trim() : '';
+                    const url = cols[2] ? cols[2].trim() : '#';
+                    const icon = cols[3] ? cols[3].trim() : 'fa-chart-line';
+                    const color = cols[4] ? cols[4].trim() : '#a855f7';
+
+                    // Cek jika baris ini adalah pesanan khas
+                    if (name === "PESANAN_ADMIN") {
+                        announcementText = desc;
+                        continue;
+                    }
+
+                    cardsFound++;
+                    cardsHtml += `
+                        <div class="card" style="--card-color: ${color};">
+                            <div class="card-glow"></div>
+                            <div class="card-header-flex">
+                                <div class="card-icon">
+                                    <i class="fa-solid ${icon}"></i>
+                                </div>
+                            </div>
+                            <div class="card-title">${name}</div>
+                            <div class="card-desc">${desc || 'Tiada penerangan.'}</div>
+                            <a href="${url}" target="_blank" class="btn-open">
+                                Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
                         </div>
-                    </div>
-                    <div class="card-title">${dash.name}</div>
-                    <div class="card-desc">${desc}</div>
-                    <a href="${dash.url}" target="_blank" class="btn-open">
-                        Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                `;
-                container.appendChild(card);
-            });
+                    `;
+                }
+
+                loader.style.display = 'none';
+                
+                // Show Announcement
+                if (announcementText) {
+                    document.getElementById('announcement-text-display').textContent = announcementText;
+                    document.getElementById('announcement-banner').style.display = 'flex';
+                }
+
+                // Show Cards
+                if(cardsFound > 0) {
+                    container.innerHTML = cardsHtml;
+                } else {
+                    container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1/-1; text-align:center;">Tiada dashboard direkodkan lagi di dalam pangkalan data.</p>`;
+                }
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                loader.style.display = 'none';
+                errorBox.style.display = 'block';
+            }
         }
 
-        function renderAnnouncement() {
-            const container = document.getElementById('announcement-container');
-            const display = document.getElementById('announcement-text-display');
+        // Dummy data paparan sekiranya Google Sheet belum di link (Demo sahaja)
+        function renderDummyData() {
+            document.getElementById('announcement-text-display').textContent = "PENGUMUMAN ADMIN: Ini adalah paparan demo kerana Google Sheet ID belum dimasukkan. Sila kemaskini kod HTML anda.";
+            document.getElementById('announcement-banner').style.display = 'flex';
             
-            if (announcement && announcement.trim() !== "") {
-                display.textContent = announcement;
-                container.style.display = 'block';
+            const dummyHtml = `
+                <div class="card" style="--card-color: #a855f7;">
+                    <div class="card-glow"></div>
+                    <div class="card-header-flex"><div class="card-icon"><i class="fa-solid fa-brain"></i></div></div>
+                    <div class="card-title">Dashboard KMS2026</div>
+                    <div class="card-desc">Pemantauan program Jelajah Kedah Minda Sejahtera.</div>
+                    <a href="#" class="btn-open">Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                </div>
+                <div class="card" style="--card-color: #3b82f6;">
+                    <div class="card-glow"></div>
+                    <div class="card-header-flex"><div class="card-icon"><i class="fa-solid fa-mobile-screen"></i></div></div>
+                    <div class="card-title">NHSI PWA Dashboard</div>
+                    <div class="card-desc">Sistem saringan kesihatan kebangsaan.</div>
+                    <a href="#" class="btn-open">Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                </div>
+            `;
+            document.getElementById('dashboard-container').innerHTML = dummyHtml;
+        }
+
+        // ----------------------------------------------------
+        // ADMIN SETTINGS LOGIC
+        // ----------------------------------------------------
+        
+        function checkPassword() {
+            const pwd = document.getElementById('admin-password').value;
+            // KATA LALUAN ADMIN ADALAH "adminncd"
+            if (pwd === "adminncd" || pwd === "admin") {
+                document.getElementById('password-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('password-error').style.display = 'none';
             } else {
-                container.style.display = 'none';
+                document.getElementById('password-error').style.display = 'block';
             }
         }
 
-        // Rendering Settings List
-        function renderSettingsList() {
-            const container = document.getElementById('settings-dashboard-list');
-            container.innerHTML = '';
-
-            if (dashboards.length === 0) {
-                container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">Tiada dashboard direkodkan.</p>';
-                return;
-            }
-
-            dashboards.forEach(dash => {
-                const item = document.createElement('div');
-                item.className = 'dashboard-list-item';
-                item.innerHTML = `
-                    <div class="dashboard-list-info">
-                        <div class="dashboard-list-name"><i class="fa-solid ${dash.icon} fa-fw" style="color:${dash.color}"></i> ${dash.name}</div>
-                        <div class="dashboard-list-url">${dash.url}</div>
-                    </div>
-                    <button class="btn-delete" onclick="deleteDashboard(${dash.id})" title="Padam Pautan">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
-                container.appendChild(item);
-            });
+        function logoutAdmin() {
+            document.getElementById('admin-password').value = '';
+            document.getElementById('password-screen').style.display = 'flex';
+            document.getElementById('admin-panel').style.display = 'none';
         }
 
-        // Admin Actions
-        function saveAnnouncement() {
-            const text = document.getElementById('setting-announcement').value.trim();
-            announcement = text;
-            localStorage.setItem('myNCD_announcement', announcement);
-            alert("Pesanan berjaya disimpan!");
-        }
-
-        function addDashboard() {
-            const name = document.getElementById('dash-name').value.trim();
-            const desc = document.getElementById('dash-desc').value.trim();
-            const url = document.getElementById('dash-url').value.trim();
-            const icon = document.getElementById('dash-icon').value.trim() || 'fa-chart-line';
-            const color = document.getElementById('dash-color-final').value;
-
-            if (!name || !url) {
-                alert("Sila masukkan nama dan URL dashboard.");
-                return;
-            }
-
-            const newDash = {
-                id: Date.now(),
-                name: name,
-                desc: desc || 'Tiada penerangan disediakan.',
-                url: url,
-                icon: icon,
-                color: color
-            };
-
-            dashboards.push(newDash);
-            localStorage.setItem('myNCD_dashboards', JSON.stringify(dashboards));
-            
-            // Reset form
-            document.getElementById('dash-name').value = '';
-            document.getElementById('dash-desc').value = '';
-            document.getElementById('dash-url').value = '';
-            
-            renderSettingsList();
-            alert("Pautan dashboard berjaya ditambah!");
-        }
-
-        function deleteDashboard(id) {
-            if(confirm("Adakah anda pasti untuk memadam pautan dashboard ini?")) {
-                dashboards = dashboards.filter(d => d.id !== id);
-                localStorage.setItem('myNCD_dashboards', JSON.stringify(dashboards));
-                renderSettingsList();
-            }
-        }
-
-        // Color Selection Logic
-        function selectColor(element) {
-            document.querySelectorAll('.color-preset').forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected');
-            document.getElementById('dash-color-final').value = element.getAttribute('data-color');
-            document.getElementById('dash-color-custom').value = element.getAttribute('data-color');
-        }
-        function selectCustomColor(element) {
-            document.querySelectorAll('.color-preset').forEach(el => el.classList.remove('selected'));
-            document.getElementById('dash-color-final').value = element.value;
-        }
-
-        // Auth Modal Logic
-        function openAuthModal() {
-            document.getElementById('error-msg').style.display = 'none';
-            document.getElementById('password-input').value = '';
-            document.getElementById('auth-modal').classList.add('active');
-            setTimeout(() => document.getElementById('password-input').focus(), 100);
-        }
-
-        function closeAuthModal() {
-            document.getElementById('auth-modal').classList.remove('active');
-        }
-
-        function verifyPassword() {
-            const pwd = document.getElementById('password-input').value;
-            if (pwd === MASTER_PASSWORD) {
-                closeAuthModal();
-                switchView('view-settings');
-            } else {
-                const errorMsg = document.getElementById('error-msg');
-                errorMsg.style.display = 'block';
-                errorMsg.style.transform = 'translateX(-10px)';
-                setTimeout(() => errorMsg.style.transform = 'translateX(10px)', 50);
-                setTimeout(() => errorMsg.style.transform = 'translateX(-10px)', 100);
-                setTimeout(() => errorMsg.style.transform = 'translateX(0)', 150);
-            }
-        }
-
-        document.getElementById('password-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') verifyPassword();
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDashboards();
         });
-
-        // Start
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
