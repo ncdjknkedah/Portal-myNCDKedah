@@ -489,6 +489,30 @@
             box-shadow: 0 5px 15px rgba(15, 157, 88, 0.4);
         }
 
+        .btn-shine {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            z-index: -1;
+            transition: none;
+        }
+        .btn-shine:hover::after {
+            animation: shine 0.7s;
+        }
+        @keyframes shine {
+            100% { left: 200%; }
+        }
+
         .btn-blue {
             background: #3b82f6;
         }
@@ -1048,14 +1072,9 @@
                 
                 let references = [];
                 if (rows.length > 0) {
-                    // Extract headers to locate Nama and URL columns dynamically (avoids Timestamp column bugs)
-                    const headers = rows[0].split('\t').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-                    let nameIdx = headers.indexOf('nama');
-                    let urlIdx = headers.indexOf('url');
-
-                    // Fallback to col 0 and 1 if exact headers aren't found
-                    if (nameIdx === -1) nameIdx = 0;
-                    if (urlIdx === -1) urlIdx = 1;
+                    // Berdasarkan arahan: Kolumn A (0) untuk Nama, Kolumn B (1) untuk URL
+                    let nameIdx = 0;
+                    let urlIdx = 1;
 
                     for (let i = 1; i < rows.length; i++) {
                         if (!rows[i].trim()) continue;
@@ -1080,8 +1099,8 @@
                             <tr class="reference-row" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                                 <td style="padding: 1rem; color: var(--text-muted);">${index + 1}</td>
                                 <td style="padding: 1rem; font-weight: 500;" class="ref-name">${ref.nama}</td>
-                                <td style="padding: 1rem; text-align: center;">
-                                    <a href="${ref.url}" target="_blank" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">
+                                <td style="padding: 1rem; text-align: center; vertical-align: middle;">
+                                    <a href="${ref.url}" target="_blank" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">
                                         Buka
                                     </a>
                                 </td>
@@ -1109,15 +1128,15 @@
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 1rem; color: var(--text-muted);">1</td>
                     <td style="padding: 1rem; font-weight: 500;">Buku Panduan KMS 2026</td>
-                    <td style="padding: 1rem; text-align: center;">
-                        <a href="#" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">Buka</a>
+                    <td style="padding: 1rem; text-align: center; vertical-align: middle;">
+                        <a href="#" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">Buka</a>
                     </td>
                 </tr>
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 1rem; color: var(--text-muted);">2</td>
                     <td style="padding: 1rem; font-weight: 500;">CPG Pengurusan Hipertensi</td>
-                    <td style="padding: 1rem; text-align: center;">
-                        <a href="#" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">Buka</a>
+                    <td style="padding: 1rem; text-align: center; vertical-align: middle;">
+                        <a href="#" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">Buka</a>
                     </td>
                 </tr>
             `;
