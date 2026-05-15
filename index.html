@@ -659,7 +659,7 @@
                             <div style="margin-top: 3rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                                 <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini Manual:</h4>
                                 <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
-                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan | URL | Ikon FontAwesome | Kod Warna).</li>
+                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan |  | Ikon FontAwesome | Kod Warna).</li>
                                     <li><strong>Tukar Pesanan Penting:</strong> Cari baris yang bernama <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #f472b6;">PESANAN_ADMIN</code> dan ubah teks di kolum Penerangan. Padam teks untuk hilangkan banner pengumuman.</li>
                                     <li>Perubahan yang disimpan di dalam Google Sheets akan dipaparkan secara automatik kepada semua pengguna (staf) sebaik sahaja portal ini di-refresh.</li>
                                 </ul>
@@ -681,8 +681,8 @@
                                 <input type="text" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
                             </div>
                             <div class="form-group" style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL</label>
-                                <input type="url" id="input-url" class="form-control" placeholder="https://...">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan </label>
+                                <input type="" id="input-" class="form-control" placeholder="https://...">
                             </div>
                             <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
                                 <div class="form-group" style="flex: 1;">
@@ -786,7 +786,7 @@
         const GOOGLE_SHEET_ID = 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI'; 
         
         // MAKLUMAN UNTUK ADMIN: Masukkan URL Google Apps Script anda di bawah untuk fungsi Hantar Borang.
-        const APPS_SCRIPT_URL = 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec';
 
         const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
