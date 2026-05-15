@@ -481,6 +481,22 @@
             box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
         }
 
+        .btn-green {
+            background: #0F9D58;
+        }
+        .btn-green:hover {
+            background: #0b8043;
+            box-shadow: 0 5px 15px rgba(15, 157, 88, 0.4);
+        }
+
+        .btn-blue {
+            background: #3b82f6;
+        }
+        .btn-blue:hover {
+            background: #2563eb;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
         .settings-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -575,6 +591,11 @@
                     </a>
                 </li>
                 <li>
+                    <a class="nav-link" data-target="view-references" onclick="switchView('view-references', this)">
+                        <i class="fa-solid fa-book-bookmark"></i> Koleksi Rujukan
+                    </a>
+                </li>
+                <li>
                     <a class="nav-link" data-target="view-settings" onclick="switchView('view-settings', this)">
                         <i class="fa-solid fa-gear"></i> Tetapan
                     </a>
@@ -650,13 +671,47 @@
                     <div class="calendar-notice">
                         <i class="fa-solid fa-circle-info" style="font-size: 1.5rem; color: #3b82f6;"></i>
                         <div style="flex: 1;">
-                            <strong>Akses Kalendar Awam:</strong> Ini adalah jadual rasmi Unit NCD JKN Kedah. Kalender ini boleh diakses menggunakan akaun @moh.gov.my untuk melihat perincian aktiviti Unit NCD. 
+                            <strong>Akses Kalendar Awam:</strong> Ini adalah jadual rasmi Unit NCD JKN Kedah. Pastikan kalendar ini telah ditetapkan kepada 'Public' di dalam tetapan Google Calendar.
                         </div>
                         <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka Tab Baru</a>
                     </div>
 
                     <div class="iframe-container" style="background: #fff; border-radius: 20px; padding: 10px;">
                         <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FKuala_Lumpur&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
+                    </div>
+                </div>
+
+                <!-- VIEW: KOLEKSI RUJUKAN -->
+                <div id="view-references" class="view-section">
+                    <div class="section-header">
+                        <h2>Koleksi Rujukan NCD</h2>
+                        <p>Bahan rujukan berkaitan NCD seperti laporan tinjauan, bahan-bahan kursus, CPG dan lain-lain.</p>
+                    </div>
+
+                    <div id="loader-references">
+                        <div class="spinner"></div>
+                        <p>Memuat turun senarai bahan rujukan...</p>
+                    </div>
+
+                    <div class="error-state" id="error-box-references">
+                        <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h3>Gagal Memuat Turun Data</h3>
+                        <p>Sila pastikan data rujukan telah dimasukkan ke dalam Google Sheets.</p>
+                    </div>
+
+                    <div class="table-responsive" style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--card-border); padding: 1.5rem; display: none; overflow-x: auto;" id="references-container">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;" id="references-table">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding: 1rem; width: 60px; color: var(--primary);">Bil</th>
+                                    <th style="padding: 1rem; color: var(--primary);">Koleksi Bahan</th>
+                                    <th style="padding: 1rem; width: 150px; text-align: center; color: var(--primary);">Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="references-tbody">
+                                <!-- Data injected here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -684,7 +739,7 @@
                             <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Pangkalan Data Berpusat</h3>
                             <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Semua penambahan dashboard baharu, pemadaman rekod, dan pengemaskinian pesanan penting (Banner) kini diuruskan sepenuhnya melalui fail Google Sheets utama.</p>
                             
-                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary btn-green" style="font-size: 1.1rem; padding: 1rem 2rem;">
                                 <i class="fa-solid fa-file-excel"></i> Buka Google Sheets
                             </a>
                             
@@ -700,7 +755,7 @@
 
                         <!-- Add Dashboard Form using Hidden iframe (Fail-proof) -->
                         <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onFormSubmitSuccess();}"></iframe>
-                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card" style="text-align: left; margin-top: 2rem;">
+                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card" style="text-align: left; margin-top: 2rem; border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.1);">
                             <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle"></i> Tambah Pautan Baharu</h3>
                             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
                                 Isi borang di bawah untuk menghantar rekod terus ke Google Sheets anda.
@@ -738,6 +793,27 @@
                             </div>
                             <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; justify-content: center;">
                                 <i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets
+                            </button>
+                        </form>
+
+                        <!-- Add Reference Form -->
+                        <iframe name="hidden_iframe_ref" id="hidden_iframe_ref" style="display:none;" onload="if(submittedRef){onFormSubmitSuccessRef();}"></iframe>
+                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe_ref" onsubmit="submittedRef=true; onFormSubmitStartRef();" class="settings-card" style="text-align: left; margin-top: 2rem; border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.1);">
+                            <h3 style="color: #3b82f6; margin-bottom: 1.5rem;"><i class="fa-solid fa-book-medical"></i> Tambah Koleksi Rujukan Baharu</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                                Isi borang di bawah untuk menambah bahan rujukan ke dalam Sheet2. Pastikan header lajur adalah "Nama" dan "URL".
+                            </p>
+                            <input type="hidden" name="sheet" value="Sheet2">
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Bahan Rujukan (Wajib)</label>
+                                <input type="text" name="Nama" id="input-ref-name" class="form-control" placeholder="Contoh: CPG Pengurusan Hipertensi" required style="border-color: rgba(59, 130, 246, 0.3);">
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem; margin-bottom: 1.5rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL (Wajib)</label>
+                                <input type="url" name="URL" id="input-ref-url" class="form-control" placeholder="https://drive.google.com/..." required style="border-color: rgba(59, 130, 246, 0.3);">
+                            </div>
+                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="width: 100%; justify-content: center;">
+                                <i class="fa-solid fa-paper-plane"></i> Tambah Rujukan
                             </button>
                         </form>
 
@@ -807,6 +883,8 @@
             // Refresh dashboards if switching back
             if(targetId === 'view-dashboard') {
                 fetchDashboards();
+            } else if (targetId === 'view-references') {
+                fetchReferences();
             }
         }
 
@@ -821,6 +899,7 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec';
 
         const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
+        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet2`;
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
 
         // Update the admin link
@@ -937,6 +1016,112 @@
             document.getElementById('dashboard-container').innerHTML = dummyHtml;
         }
 
+        async function fetchReferences() {
+            const tbody = document.getElementById('references-tbody');
+            const loader = document.getElementById('loader-references');
+            const errorBox = document.getElementById('error-box-references');
+            const tableContainer = document.getElementById('references-container');
+            
+            tbody.innerHTML = '';
+            errorBox.style.display = 'none';
+            tableContainer.style.display = 'none';
+            loader.style.display = 'flex';
+
+            if(GOOGLE_SHEET_ID === 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI') {
+                loader.style.display = 'none';
+                tableContainer.style.display = 'block';
+                renderDummyReferences();
+                return;
+            }
+
+            try {
+                const response = await fetch(REF_URL, { cache: "no-store" });
+                if (!response.ok) throw new Error("Network response was not ok");
+                
+                const text = await response.text();
+                const rows = parseCSV(text);
+                
+                let references = [];
+                for (let i = 1; i < rows.length; i++) {
+                    if (!rows[i] || rows[i].length < 2 || !rows[i][0].trim()) continue;
+                    references.push({
+                        nama: rows[i][0].trim(),
+                        url: rows[i][1].trim()
+                    });
+                }
+                
+                // Susun ikut abjad
+                references.sort((a, b) => a.nama.localeCompare(b.nama));
+
+                let rowsHtml = "";
+                if(references.length > 0) {
+                    references.forEach((ref, index) => {
+                        rowsHtml += `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 1rem; color: var(--text-muted);">${index + 1}</td>
+                                <td style="padding: 1rem; font-weight: 500;">${ref.nama}</td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    <a href="${ref.url}" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                        Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = rowsHtml;
+                    tableContainer.style.display = 'block';
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2.5rem; color:var(--text-muted);">Tiada bahan rujukan direkodkan di dalam Sheet2.</td></tr>`;
+                    tableContainer.style.display = 'block';
+                }
+                loader.style.display = 'none';
+
+            } catch (error) {
+                console.error("Error fetching references:", error);
+                loader.style.display = 'none';
+                errorBox.style.display = 'block';
+            }
+        }
+
+        function renderDummyReferences() {
+            const dummyHtml = `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 1rem; color: var(--text-muted);">1</td>
+                    <td style="padding: 1rem; font-weight: 500;">Buku Panduan KMS 2026</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <a href="#" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i></a>
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 1rem; color: var(--text-muted);">2</td>
+                    <td style="padding: 1rem; font-weight: 500;">CPG Pengurusan Hipertensi</td>
+                    <td style="padding: 1rem; text-align: center;">
+                        <a href="#" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i></a>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('references-tbody').innerHTML = dummyHtml;
+        }
+
+        function parseCSV(str) {
+            const arr = [];
+            let quote = false;
+            let row = 0, col = 0;
+            for (let c = 0; c < str.length; c++) {
+                let cc = str[c], nc = str[c+1];
+                arr[row] = arr[row] || [];
+                arr[row][col] = arr[row][col] || '';
+                if (cc === '"' && quote && nc === '"') { arr[row][col] += cc; ++c; continue; }
+                if (cc === '"') { quote = !quote; continue; }
+                if (cc === ',' && !quote) { ++col; continue; }
+                if (cc === '\\r' && nc === '\\n' && !quote) { ++row; col = 0; ++c; continue; }
+                if (cc === '\\n' && !quote) { ++row; col = 0; continue; }
+                if (cc === '\\r' && !quote) { ++row; col = 0; continue; }
+                arr[row][col] += cc;
+            }
+            return arr;
+        }
+
         // ----------------------------------------------------
         // ADMIN SETTINGS LOGIC
         // ----------------------------------------------------
@@ -983,9 +1168,32 @@
             alert('TINDAKAN BERJAYA!\nMaklumat telah dihantar ke pangkalan data Google Sheets.\n\nSila tekan menu "Dashboard NCD" di kiri untuk muat semula (refresh) paparan.');
         }
 
+        let submittedRef = false;
+
+        function onFormSubmitStartRef() {
+            const btn = document.getElementById('btn-submit-ref');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Menghantar...';
+        }
+
+        function onFormSubmitSuccessRef() {
+            submittedRef = false;
+            
+            document.getElementById('input-ref-name').value = '';
+            document.getElementById('input-ref-url').value = '';
+            
+            const btn = document.getElementById('btn-submit-ref');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Tambah Rujukan';
+            
+            alert('RUJUKAN BERJAYA DITAMBAH!\nMaklumat telah dihantar ke Sheet2 dalam pangkalan data Google Sheets.\n\nSila semak di menu Koleksi Rujukan.');
+            fetchReferences(); // update the list
+        }
+
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             fetchDashboards();
+            fetchReferences();
             
             // Allow Enter key to submit password
             document.getElementById('admin-password').addEventListener('keypress', function(e) {
