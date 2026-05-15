@@ -268,7 +268,7 @@
             padding: 1.5rem;
             margin-bottom: 2.5rem;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 1.25rem;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(12px);
@@ -278,16 +278,36 @@
         .announcement-icon {
             font-size: 1.8rem;
             color: #f472b6;
-            margin-top: 0.2rem;
             text-shadow: 0 0 15px rgba(244, 114, 182, 0.5);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .announcement-marquee {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            /* Fade out effect at the edges */
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
         }
         
         .announcement-text {
             color: #f8fafc;
-            line-height: 1.6;
-            font-size: 1.05rem;
-            white-space: pre-wrap;
-            flex: 1;
+            font-size: 1.1rem;
+            display: inline-block;
+            padding-left: 100%; /* Start exactly outside the right edge */
+            animation: scroll-left 25s linear infinite; /* Smooth, readable speed */
+        }
+
+        /* Pause animation on hover */
+        .announcement-marquee:hover .announcement-text {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
         }
 
         /* Error state */
@@ -593,7 +613,9 @@
 
                     <div class="announcement-banner" id="announcement-banner">
                         <i class="fa-solid fa-bullhorn announcement-icon"></i>
-                        <div class="announcement-text" id="announcement-text-display"></div>
+                        <div class="announcement-marquee">
+                            <div class="announcement-text" id="announcement-text-display"></div>
+                        </div>
                     </div>
 
                     <div class="dashboard-grid" id="dashboard-container">
