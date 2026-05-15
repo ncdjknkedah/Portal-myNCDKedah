@@ -699,13 +699,18 @@
                         <p>Sila pastikan data rujukan telah dimasukkan ke dalam Google Sheets.</p>
                     </div>
 
+                    <div style="margin-bottom: 1.5rem; display: none; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem 1.5rem; border-radius: 15px; border: 1px solid var(--card-border);" id="references-search-box">
+                        <i class="fa-solid fa-magnifying-glass" style="color: var(--primary); font-size: 1.2rem;"></i>
+                        <input type="text" id="search-references" onkeyup="filterReferences()" placeholder="Cari nama bahan rujukan..." class="form-control" style="border: none; background: transparent; padding: 0; box-shadow: none;">
+                    </div>
+
                     <div class="table-responsive" style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--card-border); padding: 1.5rem; display: none; overflow-x: auto;" id="references-container">
                         <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;" id="references-table">
                             <thead>
                                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                                     <th style="padding: 1rem; width: 60px; color: var(--primary);">Bil</th>
                                     <th style="padding: 1rem; color: var(--primary);">Koleksi Bahan</th>
-                                    <th style="padding: 1rem; width: 150px; text-align: center; color: var(--primary);">Tindakan</th>
+                                    <th style="padding: 1rem; width: 120px; text-align: center; color: var(--primary);"></th>
                                 </tr>
                             </thead>
                             <tbody id="references-tbody">
@@ -899,7 +904,7 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec';
 
         const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
-        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet2`;
+        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:tsv&sheet=Sheet2`;
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
 
         // Update the admin link
@@ -1039,15 +1044,30 @@
                 if (!response.ok) throw new Error("Network response was not ok");
                 
                 const text = await response.text();
-                const rows = parseCSV(text);
+                const rows = text.split('\n');
                 
                 let references = [];
-                for (let i = 1; i < rows.length; i++) {
-                    if (!rows[i] || rows[i].length < 2 || !rows[i][0].trim()) continue;
-                    references.push({
-                        nama: rows[i][0].trim(),
-                        url: rows[i][1].trim()
-                    });
+                if (rows.length > 0) {
+                    // Extract headers to locate Nama and URL columns dynamically (avoids Timestamp column bugs)
+                    const headers = rows[0].split('\t').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+                    let nameIdx = headers.indexOf('nama');
+                    let urlIdx = headers.indexOf('url');
+
+                    // Fallback to col 0 and 1 if exact headers aren't found
+                    if (nameIdx === -1) nameIdx = 0;
+                    if (urlIdx === -1) urlIdx = 1;
+
+                    for (let i = 1; i < rows.length; i++) {
+                        if (!rows[i].trim()) continue;
+                        const cols = rows[i].split('\t');
+                        
+                        let nama = (cols[nameIdx] || '').trim().replace(/^"|"$/g, '');
+                        let url = (cols[urlIdx] || '').trim().replace(/^"|"$/g, '');
+                        
+                        if (nama && url) {
+                            references.push({ nama, url });
+                        }
+                    }
                 }
                 
                 // Susun ikut abjad
@@ -1057,18 +1077,19 @@
                 if(references.length > 0) {
                     references.forEach((ref, index) => {
                         rowsHtml += `
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                            <tr class="reference-row" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                                 <td style="padding: 1rem; color: var(--text-muted);">${index + 1}</td>
-                                <td style="padding: 1rem; font-weight: 500;">${ref.nama}</td>
+                                <td style="padding: 1rem; font-weight: 500;" class="ref-name">${ref.nama}</td>
                                 <td style="padding: 1rem; text-align: center;">
-                                    <a href="${ref.url}" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                                        Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+                                    <a href="${ref.url}" target="_blank" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">
+                                        Buka
                                     </a>
                                 </td>
                             </tr>
                         `;
                     });
                     tbody.innerHTML = rowsHtml;
+                    document.getElementById('references-search-box').style.display = 'flex';
                     tableContainer.style.display = 'block';
                 } else {
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2.5rem; color:var(--text-muted);">Tiada bahan rujukan direkodkan di dalam Sheet2.</td></tr>`;
@@ -1089,37 +1110,35 @@
                     <td style="padding: 1rem; color: var(--text-muted);">1</td>
                     <td style="padding: 1rem; font-weight: 500;">Buku Panduan KMS 2026</td>
                     <td style="padding: 1rem; text-align: center;">
-                        <a href="#" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i></a>
+                        <a href="#" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">Buka</a>
                     </td>
                 </tr>
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 1rem; color: var(--text-muted);">2</td>
                     <td style="padding: 1rem; font-weight: 500;">CPG Pengurusan Hipertensi</td>
                     <td style="padding: 1rem; text-align: center;">
-                        <a href="#" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i></a>
+                        <a href="#" class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px;">Buka</a>
                     </td>
                 </tr>
             `;
             document.getElementById('references-tbody').innerHTML = dummyHtml;
         }
 
-        function parseCSV(str) {
-            const arr = [];
-            let quote = false;
-            let row = 0, col = 0;
-            for (let c = 0; c < str.length; c++) {
-                let cc = str[c], nc = str[c+1];
-                arr[row] = arr[row] || [];
-                arr[row][col] = arr[row][col] || '';
-                if (cc === '"' && quote && nc === '"') { arr[row][col] += cc; ++c; continue; }
-                if (cc === '"') { quote = !quote; continue; }
-                if (cc === ',' && !quote) { ++col; continue; }
-                if (cc === '\\r' && nc === '\\n' && !quote) { ++row; col = 0; ++c; continue; }
-                if (cc === '\\n' && !quote) { ++row; col = 0; continue; }
-                if (cc === '\\r' && !quote) { ++row; col = 0; continue; }
-                arr[row][col] += cc;
+        function filterReferences() {
+            const query = document.getElementById('search-references').value.toLowerCase();
+            const rows = document.getElementsByClassName('reference-row');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const nameCell = rows[i].querySelector('.ref-name');
+                if (nameCell) {
+                    const textValue = nameCell.textContent || nameCell.innerText;
+                    if (textValue.toLowerCase().indexOf(query) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
             }
-            return arr;
         }
 
         // ----------------------------------------------------
