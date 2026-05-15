@@ -657,7 +657,7 @@
                             </a>
                             
                             <div style="margin-top: 3rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                                <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini:</h4>
+                                <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini Manual:</h4>
                                 <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
                                     <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan | URL | Ikon FontAwesome | Kod Warna).</li>
                                     <li><strong>Tukar Pesanan Penting:</strong> Cari baris yang bernama <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #f472b6;">PESANAN_ADMIN</code> dan ubah teks di kolum Penerangan. Padam teks untuk hilangkan banner pengumuman.</li>
@@ -666,7 +666,50 @@
                             </div>
                         </div>
 
-                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin-top: 1rem;">Log Keluar</button>
+                        <!-- Add Dashboard Form -->
+                        <div class="settings-card" style="text-align: left; margin-top: 2rem;">
+                            <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle"></i> Tambah Pautan Baharu</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                                Isi borang di bawah untuk menghantar rekod terus ke Google Sheets anda.
+                            </p>
+                            <div class="form-group">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Dashboard</label>
+                                <input type="text" id="input-name" class="form-control" placeholder="Contoh: Dashboard KMS2026">
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Penerangan Ringkas</label>
+                                <input type="text" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL</label>
+                                <input type="url" id="input-url" class="form-control" placeholder="https://...">
+                            </div>
+                            <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
+                                <div class="form-group" style="flex: 1;">
+                                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Ikon (Pilihan)</label>
+                                    <select id="input-icon" class="form-control">
+                                        <option value="fa-chart-pie">Carta (fa-chart-pie)</option>
+                                        <option value="fa-brain">Kesihatan Mental (fa-brain)</option>
+                                        <option value="fa-heart-pulse">Jantung/KOSPEN (fa-heart-pulse)</option>
+                                        <option value="fa-file-medical">Reten/Klinikal (fa-file-medical)</option>
+                                        <option value="fa-mobile-screen">Telefon/PWA (fa-mobile-screen)</option>
+                                        <option value="fa-clipboard-list">Survey/Borang (fa-clipboard-list)</option>
+                                        <option value="fa-droplet">Darah/Hipertensi (fa-droplet)</option>
+                                        <option value="fa-magnifying-glass">Carian (fa-magnifying-glass)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Warna Tema</label>
+                                    <input type="color" id="input-color" class="form-control" value="#a855f7" style="height: 48px; padding: 0.2rem;">
+                                </div>
+                            </div>
+                            <button onclick="addDashboardToSheet()" id="btn-submit-form" class="btn-primary" style="width: 100%; justify-content: center;">
+                                <i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets
+                            </button>
+                            <p id="form-msg" style="margin-top: 1rem; text-align: center; display: none; font-weight: 500;"></p>
+                        </div>
+
+                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin-top: 1rem; margin-left: auto; margin-right: auto;">Log Keluar</button>
                     </div>
                 </div>
             </main>
@@ -740,11 +783,11 @@
         // ----------------------------------------------------
         
         // MAKLUMAN UNTUK ADMIN: Masukkan ID Google Sheet anda di bawah.
-        // Format Sheet MESTI ada 5 Lajur: Nama | Penerangan | URL | Ikon | Warna
-        // Untuk Papar Pengumuman: Letak perkataan PESANAN_ADMIN di kolum "Nama" dan letak mesej di kolum "Penerangan".
+        const GOOGLE_SHEET_ID = 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI'; 
         
-        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA'; 
-        
+        // MAKLUMAN UNTUK ADMIN: Masukkan URL Google Apps Script anda di bawah untuk fungsi Hantar Borang.
+        const APPS_SCRIPT_URL = 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI';
+
         const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
 
@@ -882,11 +925,78 @@
             document.getElementById('admin-password').value = '';
             document.getElementById('password-screen').style.display = 'flex';
             document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('form-msg').style.display = 'none';
+        }
+
+        async function addDashboardToSheet() {
+            const name = document.getElementById('input-name').value;
+            const desc = document.getElementById('input-desc').value;
+            const url = document.getElementById('input-url').value;
+            const icon = document.getElementById('input-icon').value;
+            const color = document.getElementById('input-color').value;
+            const msgEl = document.getElementById('form-msg');
+            const btn = document.getElementById('btn-submit-form');
+
+            if(!name || !url) {
+                msgEl.style.display = 'block';
+                msgEl.style.color = '#ef4444';
+                msgEl.textContent = 'Sila lengkapkan Nama dan Pautan URL.';
+                return;
+            }
+
+            if(APPS_SCRIPT_URL === 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI') {
+                alert("Ralat: Pautan Web App (Apps Script) belum diisi dalam fail HTML. Sila pastikan anda telah set-up Google Apps Script terlebih dahulu.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghantar...';
+            msgEl.style.display = 'none';
+
+            try {
+                // Post data via URL parameters to bypass CORS issues
+                const formData = new URLSearchParams();
+                formData.append('nama', name);
+                formData.append('penerangan', desc);
+                formData.append('url', url);
+                formData.append('ikon', icon);
+                formData.append('warna', color);
+
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors' // No-cors is required since Apps script blocks standard CORS from arbitrary origins
+                });
+                
+                // Form reset
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-desc').value = '';
+                document.getElementById('input-url').value = '';
+                
+                msgEl.style.display = 'block';
+                msgEl.style.color = '#10b981';
+                msgEl.textContent = 'Berjaya dihantar ke Google Sheets! Sila tekan "Dashboard NCD" untuk muat semula.';
+                
+            } catch (error) {
+                msgEl.style.display = 'block';
+                msgEl.style.color = '#ef4444';
+                msgEl.textContent = 'Gagal menghantar data. Sila semak sambungan internet anda.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets';
+            }
         }
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', () => {
             fetchDashboards();
+            
+            // Allow Enter key to submit password
+            document.getElementById('admin-password').addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
         });
     </script>
 </body>
