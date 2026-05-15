@@ -1,7 +1,7 @@
 {
-  "name": "Portal myNCDKedah",
-  "short_name": "myNCDKedah",
-  "description": "Portal pemantauan dan dashboard myNCDKedah",
+  "name": "MyNCDKedah",
+  "short_name": "MyNCDKedah",
+  "description": "Portal pemantauan dan dashboard MyNCDKedah",
   "start_url": "./portal_myncdkedah.html",
   "display": "standalone",
   "background_color": "#0b0714",
@@ -9,8 +9,8 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063138.png",
-      "sizes": "512x512",
+      "src": "./icon.png",
+      "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
