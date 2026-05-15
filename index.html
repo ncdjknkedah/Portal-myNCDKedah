@@ -666,28 +666,29 @@
                             </div>
                         </div>
 
-                        <!-- Add Dashboard Form -->
-                        <div class="settings-card" style="text-align: left; margin-top: 2rem;">
+                        <!-- Add Dashboard Form using Hidden iframe (Fail-proof) -->
+                        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onFormSubmitSuccess();}"></iframe>
+                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card" style="text-align: left; margin-top: 2rem;">
                             <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle"></i> Tambah Pautan Baharu</h3>
                             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
                                 Isi borang di bawah untuk menghantar rekod terus ke Google Sheets anda.
                             </p>
                             <div class="form-group">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Dashboard</label>
-                                <input type="text" id="input-name" class="form-control" placeholder="Contoh: Dashboard KMS2026">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Dashboard (Wajib)</label>
+                                <input type="text" name="nama" id="input-name" class="form-control" placeholder="Contoh: Dashboard KMS2026" required>
                             </div>
                             <div class="form-group" style="margin-top: 1rem;">
                                 <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Penerangan Ringkas</label>
-                                <input type="text" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
+                                <input type="text" name="penerangan" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
                             </div>
                             <div class="form-group" style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL</label>
-                                <input type="url" id="input-url" class="form-control" placeholder="https://...">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL (Wajib)</label>
+                                <input type="url" name="url" id="input-url" class="form-control" placeholder="https://..." required>
                             </div>
                             <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
                                 <div class="form-group" style="flex: 1;">
                                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Ikon (Pilihan)</label>
-                                    <select id="input-icon" class="form-control">
+                                    <select name="ikon" id="input-icon" class="form-control">
                                         <option value="fa-chart-pie">Carta (fa-chart-pie)</option>
                                         <option value="fa-brain">Kesihatan Mental (fa-brain)</option>
                                         <option value="fa-heart-pulse">Jantung/KOSPEN (fa-heart-pulse)</option>
@@ -700,14 +701,13 @@
                                 </div>
                                 <div class="form-group" style="flex: 1;">
                                     <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Warna Tema</label>
-                                    <input type="color" id="input-color" class="form-control" value="#a855f7" style="height: 48px; padding: 0.2rem;">
+                                    <input type="color" name="warna" id="input-color" class="form-control" value="#a855f7" style="height: 48px; padding: 0.2rem;">
                                 </div>
                             </div>
-                            <button onclick="addDashboardToSheet()" id="btn-submit-form" class="btn-primary" style="width: 100%; justify-content: center;">
+                            <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; justify-content: center;">
                                 <i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets
                             </button>
-                            <p id="form-msg" style="margin-top: 1rem; text-align: center; display: none; font-weight: 500;"></p>
-                        </div>
+                        </form>
 
                         <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin-top: 1rem; margin-left: auto; margin-right: auto;">Log Keluar</button>
                     </div>
@@ -928,58 +928,27 @@
             document.getElementById('form-msg').style.display = 'none';
         }
 
-        async function addDashboardToSheet() {
-            const name = document.getElementById('input-name').value;
-            const desc = document.getElementById('input-desc').value;
-            const url = document.getElementById('input-url').value;
-            const icon = document.getElementById('input-icon').value;
-            const color = document.getElementById('input-color').value;
+        let submitted = false;
+
+        function onFormSubmitStart() {
             const btn = document.getElementById('btn-submit-form');
-
-            if(!name || !url) {
-                alert('TINDAKAN DITOLAK:\nSila lengkapkan ruangan Nama Dashboard dan Pautan URL.');
-                return;
-            }
-
-            if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI') {
-                alert("RALAT SISTEM:\nPautan Web App (Apps Script) belum diisi dalam fail HTML.");
-                return;
-            }
-
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Menghantar...';
+        }
 
-            try {
-                // Post data via URL parameters to bypass CORS issues
-                const formData = new URLSearchParams();
-                formData.append('nama', name);
-                formData.append('penerangan', desc);
-                formData.append('url', url);
-                formData.append('ikon', icon);
-                formData.append('warna', color);
-
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData,
-                    mode: 'no-cors' // No-cors is required since Apps script blocks standard CORS from arbitrary origins
-                });
-                
-                // Form reset
-                document.getElementById('input-name').value = '';
-                document.getElementById('input-desc').value = '';
-                document.getElementById('input-url').value = '';
-                
-                // Popup alert untuk success
-                alert('TINDAKAN BERJAYA!\nMaklumat telah dihantar ke pangkalan data Google Sheets.\n\nSila tekan menu "Dashboard NCD" di kiri untuk muat semula (refresh) paparan.');
-                
-            } catch (error) {
-                // Popup alert untuk error
-                alert('RALAT:\nGagal menghantar maklumat ke pelayan. Sila semak sambungan internet anda.');
-                console.error("Submission Error:", error);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets';
-            }
+        function onFormSubmitSuccess() {
+            submitted = false;
+            
+            // Padam semula tulisan yang telah diisi dalam form
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-desc').value = '';
+            document.getElementById('input-url').value = '';
+            
+            const btn = document.getElementById('btn-submit-form');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets';
+            
+            alert('TINDAKAN BERJAYA!\nMaklumat telah dihantar ke pangkalan data Google Sheets.\n\nSila tekan menu "Dashboard NCD" di kiri untuk muat semula (refresh) paparan.');
         }
 
         // Initialize App
