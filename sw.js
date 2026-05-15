@@ -1,7 +1,10 @@
-const CACHE_NAME = 'myncd-portal-v2';
+const CACHE_NAME = 'myncd-portal-v3';
 const ASSETS = [
+  './',
+  './index.html',
   './portal_myncdkedah.html',
   './manifest.json',
+  './icon.png',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
