@@ -659,7 +659,7 @@
                             <div style="margin-top: 3rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                                 <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini Manual:</h4>
                                 <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
-                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan |  | Ikon FontAwesome | Kod Warna).</li>
+                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan | URL | Ikon FontAwesome | Kod Warna).</li>
                                     <li><strong>Tukar Pesanan Penting:</strong> Cari baris yang bernama <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #f472b6;">PESANAN_ADMIN</code> dan ubah teks di kolum Penerangan. Padam teks untuk hilangkan banner pengumuman.</li>
                                     <li>Perubahan yang disimpan di dalam Google Sheets akan dipaparkan secara automatik kepada semua pengguna (staf) sebaik sahaja portal ini di-refresh.</li>
                                 </ul>
@@ -681,8 +681,8 @@
                                 <input type="text" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
                             </div>
                             <div class="form-group" style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan </label>
-                                <input type="" id="input-" class="form-control" placeholder="https://...">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL</label>
+                                <input type="url" id="input-url" class="form-control" placeholder="https://...">
                             </div>
                             <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
                                 <div class="form-group" style="flex: 1;">
@@ -934,24 +934,20 @@
             const url = document.getElementById('input-url').value;
             const icon = document.getElementById('input-icon').value;
             const color = document.getElementById('input-color').value;
-            const msgEl = document.getElementById('form-msg');
             const btn = document.getElementById('btn-submit-form');
 
             if(!name || !url) {
-                msgEl.style.display = 'block';
-                msgEl.style.color = '#ef4444';
-                msgEl.textContent = 'Sila lengkapkan Nama dan Pautan URL.';
+                alert('TINDAKAN DITOLAK:\nSila lengkapkan ruangan Nama Dashboard dan Pautan URL.');
                 return;
             }
 
-            if(APPS_SCRIPT_URL === 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI') {
-                alert("Ralat: Pautan Web App (Apps Script) belum diisi dalam fail HTML. Sila pastikan anda telah set-up Google Apps Script terlebih dahulu.");
+            if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'MASUKKAN_URL_APPS_SCRIPT_DI_SINI') {
+                alert("RALAT SISTEM:\nPautan Web App (Apps Script) belum diisi dalam fail HTML.");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menghantar...';
-            msgEl.style.display = 'none';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Menghantar...';
 
             try {
                 // Post data via URL parameters to bypass CORS issues
@@ -973,14 +969,13 @@
                 document.getElementById('input-desc').value = '';
                 document.getElementById('input-url').value = '';
                 
-                msgEl.style.display = 'block';
-                msgEl.style.color = '#10b981';
-                msgEl.textContent = 'Berjaya dihantar ke Google Sheets! Sila tekan "Dashboard NCD" untuk muat semula.';
+                // Popup alert untuk success
+                alert('TINDAKAN BERJAYA!\nMaklumat telah dihantar ke pangkalan data Google Sheets.\n\nSila tekan menu "Dashboard NCD" di kiri untuk muat semula (refresh) paparan.');
                 
             } catch (error) {
-                msgEl.style.display = 'block';
-                msgEl.style.color = '#ef4444';
-                msgEl.textContent = 'Gagal menghantar data. Sila semak sambungan internet anda.';
+                // Popup alert untuk error
+                alert('RALAT:\nGagal menghantar maklumat ke pelayan. Sila semak sambungan internet anda.');
+                console.error("Submission Error:", error);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets';
