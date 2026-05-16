@@ -928,7 +928,7 @@
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec';
 
         const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
-        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:tsv&sheet=Sheet2`;
+        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
 
         // Update the admin link
@@ -1068,23 +1068,23 @@
                 if (!response.ok) throw new Error("Network response was not ok");
                 
                 const text = await response.text();
-                const rows = text.split('\n');
+                // Google gviz returns JSON wrapped in a function call
+                const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+                const data = JSON.parse(jsonString);
                 
                 let references = [];
-                if (rows.length > 0) {
-                    // Berdasarkan arahan: Kolumn A (0) untuk Nama, Kolumn B (1) untuk URL
-                    let nameIdx = 0;
-                    let urlIdx = 1;
-
-                    for (let i = 1; i < rows.length; i++) {
-                        if (!rows[i].trim()) continue;
-                        const cols = rows[i].split('\t');
+                if (data.table && data.table.rows) {
+                    // Mula dari i=1 jika baris pertama adalah tajuk (Nama, URL)
+                    for (let i = 1; i < data.table.rows.length; i++) {
+                        let cols = data.table.rows[i].c;
+                        // Pastikan ada cukup kolum
+                        if (!cols || cols.length < 2) continue;
                         
-                        let nama = (cols[nameIdx] || '').trim().replace(/^"|"$/g, '');
-                        let url = (cols[urlIdx] || '').trim().replace(/^"|"$/g, '');
+                        let nama = cols[0] ? cols[0].v : '';
+                        let url = cols[1] ? cols[1].v : '';
                         
                         if (nama && url) {
-                            references.push({ nama, url });
+                            references.push({ nama: String(nama), url: String(url) });
                         }
                     }
                 }
