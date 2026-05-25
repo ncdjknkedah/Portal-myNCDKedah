@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MyNCDKedah</title>
     
-    <!-- PWA Meta Tags -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0b0714">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -296,7 +295,6 @@
             flex: 1;
             overflow: hidden;
             white-space: nowrap;
-            /* Fade out effect at the edges */
             -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
             mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
         }
@@ -305,11 +303,10 @@
             color: #f8fafc;
             font-size: 1.1rem;
             display: inline-block;
-            padding-left: 100%; /* Start exactly outside the right edge */
-            animation: scroll-left 25s linear infinite; /* Smooth, readable speed */
+            padding-left: 100%;
+            animation: scroll-left 25s linear infinite;
         }
 
-        /* Pause animation on hover */
         .announcement-marquee:hover .announcement-text {
             animation-play-state: paused;
         }
@@ -549,7 +546,7 @@
             border-radius: 20px;
             overflow: hidden;
             border: 1px solid var(--card-border);
-            background: #fff; /* Calendar background */
+            background: #fff;
         }
         
         .calendar-notice {
@@ -563,30 +560,14 @@
             gap: 1rem;
         }
 
-        /* Responsive */
         @media (max-width: 900px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-wrapper {
-                margin-left: 0;
-                width: 100%;
-            }
-            .menu-btn {
-                display: block;
-            }
-            .header-date {
-                display: none;
-            }
-            main {
-                padding: 1.5rem 1rem;
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; width: 100%; }
+            .menu-btn { display: block; }
+            .header-date { display: none; }
+            main { padding: 1.5rem 1rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -595,7 +576,6 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <div class="app-wrapper">
-        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="./icon.png" alt="MyNCDKedah Icon" class="sidebar-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -604,30 +584,12 @@
             </div>
             
             <ul class="sidebar-nav">
-                <li>
-                    <a class="nav-link active" data-target="view-dashboard" onclick="switchView('view-dashboard', this)">
-                        <i class="fa-solid fa-house"></i> Dashboard NCD
-                    </a>
-                </li>
-                <li>
-                    <a class="nav-link" data-target="view-calendar" onclick="switchView('view-calendar', this)">
-                        <i class="fa-regular fa-calendar-days"></i> Kalendar NCD
-                    </a>
-                </li>
-                <li>
-                    <a class="nav-link" data-target="view-references" onclick="switchView('view-references', this)">
-                        <i class="fa-solid fa-book-bookmark"></i> Koleksi Rujukan
-                    </a>
-                </li>
-                <li>
-                    <a class="nav-link" data-target="view-settings" onclick="switchView('view-settings', this)">
-                        <i class="fa-solid fa-gear"></i> Tetapan
-                    </a>
-                </li>
+                <li><a class="nav-link active" data-target="view-dashboard" onclick="switchView('view-dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard NCD</a></li>
+                <li><a class="nav-link" data-target="view-calendar" onclick="switchView('view-calendar', this)"><i class="fa-regular fa-calendar-days"></i> Kalendar NCD</a></li>
+                <li><a class="nav-link" data-target="view-references" onclick="switchView('view-references', this)"><i class="fa-solid fa-book-bookmark"></i> Koleksi Rujukan</a></li>
+                <li><a class="nav-link" data-target="view-settings" onclick="switchView('view-settings', this)"><i class="fa-solid fa-gear"></i> Tetapan</a></li>
                 <li style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
-                    <a id="sidebar-install-btn">
-                        <i class="fa-solid fa-mobile-screen"></i> Simpan Sebagai App
-                    </a>
+                    <a id="sidebar-install-btn"><i class="fa-solid fa-mobile-screen"></i> Simpan Sebagai App</a>
                 </li>
             </ul>
 
@@ -636,32 +598,21 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <div class="main-wrapper">
             <header>
-                <button class="menu-btn" onclick="toggleSidebar()">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-                <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
-                    MyNCDKedah
-                </div>
-                <div class="header-date" id="current-date">
-                    --
-                </div>
+                <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">MyNCDKedah</div>
+                <div class="header-date" id="current-date">--</div>
             </header>
 
             <main>
-                <!-- VIEW: DASHBOARD -->
                 <div id="view-dashboard" class="view-section active">
                     <div class="section-header">
                         <h2>Koleksi Dashboard NCD</h2>
                         <p>Akses pantas ke semua dashboard pemantauan pendaftaran dan laporan.</p>
                     </div>
 
-                    <div id="loader">
-                        <div class="spinner"></div>
-                        <p>Memuat turun senarai pautan...</p>
-                    </div>
+                    <div id="loader"><div class="spinner"></div><p>Memuat turun senarai pautan...</p></div>
 
                     <div class="error-state" id="error-box">
                         <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
@@ -671,87 +622,49 @@
 
                     <div class="announcement-banner" id="announcement-banner">
                         <i class="fa-solid fa-bullhorn announcement-icon"></i>
-                        <div class="announcement-marquee">
-                            <div class="announcement-text" id="announcement-text-display"></div>
-                        </div>
+                        <div class="announcement-marquee"><div class="announcement-text" id="announcement-text-display"></div></div>
                     </div>
 
-                    <div class="dashboard-grid" id="dashboard-container">
-                        <!-- Cards injected here via JS -->
-                    </div>
+                    <div class="dashboard-grid" id="dashboard-container"></div>
 
                     <div style="text-align: center; color: rgba(255,255,255,0.4); font-size: 0.9rem; padding-top: 3rem; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05);">
                         &copy; 2026 JKN Kedah<br>Unit Kawalan Penyakit Tidak Berjangkit
                     </div>
                 </div>
 
-                <!-- VIEW: KALENDAR -->
                 <div id="view-calendar" class="view-section">
                     <div class="section-header">
                         <h2>Kalendar Unit NCD</h2>
                         <p>Jadual perancangan aktiviti dan mesyuarat peringkat negeri Kedah.</p>
                     </div>
-                    
                     <div class="calendar-notice">
                         <i class="fa-solid fa-circle-info" style="font-size: 1.5rem; color: #3b82f6;"></i>
-                        <div style="flex: 1;">
-                            <strong>Akses Kalendar Awam:</strong> Ini adalah jadual rasmi Unit NCD JKN Kedah. Pastikan kalendar ini telah ditetapkan kepada 'Public' di dalam tetapan Google Calendar.
-                        </div>
+                        <div style="flex: 1;"><strong>Akses Kalendar Awam:</strong> Ini adalah jadual rasmi Unit NCD JKN Kedah.</div>
                         <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Buka Tab Baru</a>
                     </div>
-
-                    <div class="iframe-container" style="background: #fff; border-radius: 20px; padding: 10px;">
+                    <div class="iframe-container">
                         <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&bgcolor=%23ffffff&ctz=Asia%2FKuala_Lumpur&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
                     </div>
                 </div>
 
-                <!-- VIEW: KOLEKSI RUJUKAN -->
                 <div id="view-references" class="view-section">
-                    <div class="section-header">
-                        <h2>Koleksi Rujukan NCD</h2>
-                        <p>Bahan rujukan berkaitan NCD seperti laporan tinjauan, bahan-bahan kursus, CPG dan lain-lain.</p>
-                    </div>
-
-                    <div id="loader-references">
-                        <div class="spinner"></div>
-                        <p>Memuat turun senarai bahan rujukan...</p>
-                    </div>
-
-                    <div class="error-state" id="error-box-references">
-                        <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h3>Gagal Memuat Turun Data</h3>
-                        <p>Sila pastikan data rujukan telah dimasukkan ke dalam Google Sheets.</p>
-                    </div>
-
+                    <div class="section-header"><h2>Koleksi Rujukan NCD</h2><p>Bahan rujukan berkaitan NCD.</p></div>
+                    <div id="loader-references"><div class="spinner"></div><p>Memuat turun senarai bahan rujukan...</p></div>
+                    <div class="error-state" id="error-box-references"><i class="fa-solid fa-circle-exclamation"></i><h3>Gagal Memuat Turun Data</h3></div>
                     <div style="margin-bottom: 1.5rem; display: none; align-items: center; gap: 1rem; background: var(--card-bg); padding: 1rem 1.5rem; border-radius: 15px; border: 1px solid var(--card-border);" id="references-search-box">
-                        <i class="fa-solid fa-magnifying-glass" style="color: var(--primary); font-size: 1.2rem;"></i>
+                        <i class="fa-solid fa-magnifying-glass" style="color: var(--primary);"></i>
                         <input type="text" id="search-references" onkeyup="filterReferences()" placeholder="Cari nama bahan rujukan..." class="form-control" style="border: none; background: transparent; padding: 0; box-shadow: none;">
                     </div>
-
                     <div class="table-responsive" style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--card-border); padding: 1.5rem; display: none; overflow-x: auto;" id="references-container">
                         <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;" id="references-table">
-                            <thead>
-                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                    <th style="padding: 1rem; width: 60px; color: var(--primary);">Bil</th>
-                                    <th style="padding: 1rem; color: var(--primary);">Koleksi Bahan</th>
-                                    <th style="padding: 1rem; width: 120px; text-align: center; color: var(--primary);"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="references-tbody">
-                                <!-- Data injected here -->
-                            </tbody>
+                            <thead><tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding: 1rem; color: var(--primary);">Bil</th><th style="padding: 1rem; color: var(--primary);">Koleksi Bahan</th><th style="padding: 1rem; text-align: center; color: var(--primary);"></th></tr></thead>
+                            <tbody id="references-tbody"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- VIEW: TETAPAN (SETTINGS) -->
                 <div id="view-settings" class="view-section">
-                    <div class="section-header">
-                        <h2>Tetapan Sistem</h2>
-                        <p>Akses pangkalan data untuk mengurus dashboard dan pesanan.</p>
-                    </div>
-
-                    <!-- Password Gate -->
+                    <div class="section-header"><h2>Tetapan Sistem</h2><p>Urus dashboard dan pesanan.</p></div>
                     <div id="password-screen">
                         <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
                         <h3 style="margin-bottom: 1.5rem;">Akses Admin Sahaja</h3>
@@ -760,93 +673,35 @@
                         <p id="password-error" style="color: #ef4444; margin-top: 1rem; display: none;">Kata laluan salah.</p>
                     </div>
 
-                    <!-- Admin Panel (Hidden initially) -->
                     <div id="admin-panel" style="display: none;">
-                        
                         <div class="settings-card" style="text-align: center;">
                             <i class="fa-solid fa-database" style="color: #10b981; font-size: 3.5rem; margin-bottom: 1.5rem;"></i>
-                            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Pangkalan Data Berpusat</h3>
-                            <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Semua penambahan dashboard baharu, pemadaman rekod, dan pengemaskinian pesanan penting (Banner) kini diuruskan sepenuhnya melalui fail Google Sheets utama.</p>
-                            
-                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary btn-green" style="font-size: 1.1rem; padding: 1rem 2rem;">
-                                <i class="fa-solid fa-file-excel"></i> Buka Google Sheets
-                            </a>
-                            
-                            <div style="margin-top: 3rem; text-align: left; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                                <h4 style="color: #3b82f6; margin-bottom: 1rem;"><i class="fa-solid fa-circle-question"></i> Cara Mengemaskini Manual:</h4>
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
-                                    <li><strong>Tambah Dashboard:</strong> Isi maklumat di baris baharu (Nama | Penerangan | URL | Ikon FontAwesome | Kod Warna).</li>
-                                    <li><strong>Tukar Pesanan Penting:</strong> Cari baris yang bernama <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #f472b6;">PESANAN_ADMIN</code> dan ubah teks di kolum Penerangan. Padam teks untuk hilangkan banner pengumuman.</li>
-                                    <li>Perubahan yang disimpan di dalam Google Sheets akan dipaparkan secara automatik kepada semua pengguna (staf) sebaik sahaja portal ini di-refresh.</li>
-                                </ul>
-                            </div>
+                            <h3>Pangkalan Data Berpusat</h3>
+                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary btn-green" style="margin-top:1rem;"><i class="fa-solid fa-file-excel"></i> Buka Google Sheets</a>
                         </div>
 
-                        <!-- Add Dashboard Form using Hidden iframe (Fail-proof) -->
                         <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onFormSubmitSuccess();}"></iframe>
-                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card" style="text-align: left; margin-top: 2rem; border-color: rgba(168, 85, 247, 0.5); box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.1);">
+                        <form action="https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card">
                             <h3 style="color: var(--primary); margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle"></i> Tambah Pautan Baharu</h3>
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                                Isi borang di bawah untuk menghantar rekod terus ke Google Sheets anda.
-                            </p>
-                            <div class="form-group">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Dashboard (Wajib)</label>
-                                <input type="text" name="nama" id="input-name" class="form-control" placeholder="Contoh: Dashboard KMS2026" required>
+                            <input type="hidden" name="sheet" value="Sheet1"> <div class="form-group"><label>Nama Dashboard</label><input type="text" name="nama" id="input-name" class="form-control" required></div>
+                            <div class="form-group"><label>Penerangan</label><input type="text" name="penerangan" id="input-desc" class="form-control"></div>
+                            <div class="form-group"><label>URL</label><input type="url" name="url" id="input-url" class="form-control" required></div>
+                            <div style="display: flex; gap: 1rem;">
+                                <div style="flex: 1;"><label>Ikon</label><select name="ikon" id="input-icon" class="form-control"><option value="fa-chart-pie">Carta</option><option value="fa-brain">Mental</option><option value="fa-heart-pulse">KOSPEN</option><option value="fa-file-medical">Klinikal</option></select></div>
+                                <div style="flex: 1;"><label>Warna</label><input type="color" name="warna" id="input-color" class="form-control" value="#a855f7" style="height:48px"></div>
                             </div>
-                            <div class="form-group" style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Penerangan Ringkas</label>
-                                <input type="text" name="penerangan" id="input-desc" class="form-control" placeholder="Contoh: Pemantauan program...">
-                            </div>
-                            <div class="form-group" style="margin-top: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL (Wajib)</label>
-                                <input type="url" name="url" id="input-url" class="form-control" placeholder="https://..." required>
-                            </div>
-                            <div style="display: flex; gap: 1rem; margin-top: 1rem; margin-bottom: 1.5rem;">
-                                <div class="form-group" style="flex: 1;">
-                                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Ikon (Pilihan)</label>
-                                    <select name="ikon" id="input-icon" class="form-control">
-                                        <option value="fa-chart-pie">Carta (fa-chart-pie)</option>
-                                        <option value="fa-brain">Kesihatan Mental (fa-brain)</option>
-                                        <option value="fa-heart-pulse">Jantung/KOSPEN (fa-heart-pulse)</option>
-                                        <option value="fa-file-medical">Reten/Klinikal (fa-file-medical)</option>
-                                        <option value="fa-mobile-screen">Telefon/PWA (fa-mobile-screen)</option>
-                                        <option value="fa-clipboard-list">Survey/Borang (fa-clipboard-list)</option>
-                                        <option value="fa-droplet">Darah/Hipertensi (fa-droplet)</option>
-                                        <option value="fa-magnifying-glass">Carian (fa-magnifying-glass)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="flex: 1;">
-                                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Warna Tema</label>
-                                    <input type="color" name="warna" id="input-color" class="form-control" value="#a855f7" style="height: 48px; padding: 0.2rem;">
-                                </div>
-                            </div>
-                            <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; justify-content: center;">
-                                <i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets
-                            </button>
+                            <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top:1.5rem;">Hantar ke Google Sheets</button>
                         </form>
 
-                        <!-- Add Reference Form -->
                         <iframe name="hidden_iframe_ref" id="hidden_iframe_ref" style="display:none;" onload="if(submittedRef){onFormSubmitSuccessRef();}"></iframe>
-                        <form action="https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec" method="POST" target="hidden_iframe_ref" onsubmit="submittedRef=true; onFormSubmitStartRef();" class="settings-card" style="text-align: left; margin-top: 2rem; border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.1);">
-                            <h3 style="color: #3b82f6; margin-bottom: 1.5rem;"><i class="fa-solid fa-book-medical"></i> Tambah Koleksi Rujukan Baharu</h3>
-                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                                Isi borang di bawah untuk menambah bahan rujukan ke dalam Sheet2. Pastikan header lajur adalah "Nama" dan "URL".
-                            </p>
+                        <form action="https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec" method="POST" target="hidden_iframe_ref" onsubmit="submittedRef=true; onFormSubmitStartRef();" class="settings-card">
+                            <h3 style="color: #3b82f6; margin-bottom: 1.5rem;"><i class="fa-solid fa-book-medical"></i> Tambah Koleksi Rujukan</h3>
                             <input type="hidden" name="sheet" value="Sheet2">
-                            <div class="form-group">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Nama Bahan Rujukan (Wajib)</label>
-                                <input type="text" name="Nama" id="input-ref-name" class="form-control" placeholder="Contoh: CPG Pengurusan Hipertensi" required style="border-color: rgba(59, 130, 246, 0.3);">
-                            </div>
-                            <div class="form-group" style="margin-top: 1rem; margin-bottom: 1.5rem;">
-                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.95rem;">Pautan URL (Wajib)</label>
-                                <input type="url" name="URL" id="input-ref-url" class="form-control" placeholder="https://drive.google.com/..." required style="border-color: rgba(59, 130, 246, 0.3);">
-                            </div>
-                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="width: 100%; justify-content: center;">
-                                <i class="fa-solid fa-paper-plane"></i> Tambah Rujukan
-                            </button>
+                            <div class="form-group"><label>Nama Bahan</label><input type="text" name="Nama" id="input-ref-name" class="form-control" required></div>
+                            <div class="form-group"><label>URL</label><input type="url" name="URL" id="input-ref-url" class="form-control" required></div>
+                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="margin-top:1.5rem;">Tambah Rujukan</button>
                         </form>
-
-                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin-top: 1rem; margin-left: auto; margin-right: auto;">Log Keluar</button>
+                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin: 1rem auto;">Log Keluar</button>
                     </div>
                 </div>
             </main>
@@ -854,39 +709,15 @@
     </div>
 
     <script>
-        // PWA Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker failure', err));
-            });
-        }
+        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA'; 
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec';
+        const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
+        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
+        const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
 
-        // PWA Install Logic
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
+        document.getElementById('btn-open-sheet').href = EDIT_URL;
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        document.getElementById('sidebar-install-btn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-            } else {
-                alert("Aplikasi ini sudah dipasang, atau pelayar web anda tidak menyokong fungsi ini secara automatik.");
-            }
-            toggleSidebar();
-        });
-
-        // Set Date
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', options);
-
-        // Sidebar / UI Logic
         function toggleSidebar() {
             if(window.innerWidth <= 900) {
                 document.getElementById('sidebar').classList.toggle('open');
@@ -895,351 +726,98 @@
         }
 
         function switchView(targetId, element) {
-            // Update nav active state
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             element.classList.add('active');
-
-            // Update views
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
-
-            // Close sidebar on mobile
-            if(window.innerWidth <= 900) {
-                document.getElementById('sidebar').classList.remove('open');
-                document.getElementById('sidebarOverlay').classList.remove('active');
-            }
-            
-            // Refresh dashboards if switching back
-            if(targetId === 'view-dashboard') {
-                fetchDashboards();
-            } else if (targetId === 'view-references') {
-                fetchReferences();
-            }
+            if(window.innerWidth <= 900) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+            if(targetId === 'view-dashboard') fetchDashboards();
+            if(targetId === 'view-references') fetchReferences();
         }
-
-        // ----------------------------------------------------
-        // GOOGLE SHEETS DATABASE LOGIC
-        // ----------------------------------------------------
-        
-        // MAKLUMAN UNTUK ADMIN: Masukkan ID Google Sheet anda di bawah.
-        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA'; 
-        
-        // MAKLUMAN UNTUK ADMIN: Masukkan URL Google Apps Script anda di bawah untuk fungsi Hantar Borang.
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwK7gnBotwdQ_uhyHVbdtWZ0xIgQ8ZXRcflC8-wqpyiY7ulYiICLo474jxiQUbh_MT9QQ/exec';
-
-        const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
-        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
-        const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
-
-        // Update the admin link
-        document.getElementById('btn-open-sheet').href = EDIT_URL;
 
         async function fetchDashboards() {
             const container = document.getElementById('dashboard-container');
             const loader = document.getElementById('loader');
-            const errorBox = document.getElementById('error-box');
-            
-            // Reset views
-            container.innerHTML = '';
-            errorBox.style.display = 'none';
-            document.getElementById('announcement-banner').style.display = 'none';
-            loader.style.display = 'flex';
-
-            if(GOOGLE_SHEET_ID === 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI') {
-                loader.style.display = 'none';
-                renderDummyData();
-                return;
-            }
-            
+            container.innerHTML = ''; loader.style.display = 'flex';
             try {
                 const response = await fetch(TSV_URL, { cache: "no-store" });
-                if (!response.ok) throw new Error("Network response was not ok");
-                
                 const text = await response.text();
                 const rows = text.split('\n');
-                
-                let announcementText = "";
                 let cardsHtml = "";
-                let cardsFound = 0;
-
-                // Skip header (i=0)
                 for (let i = 1; i < rows.length; i++) {
-                    if(!rows[i].trim()) continue;
-                    
                     const cols = rows[i].split('\t');
-                    if (cols.length < 3) continue;
-
-                    const name = cols[0].trim();
-                    const desc = cols[1] ? cols[1].trim() : '';
-                    const url = cols[2] ? cols[2].trim() : '#';
-                    const icon = cols[3] ? cols[3].trim() : 'fa-chart-line';
-                    const color = cols[4] ? cols[4].trim() : '#a855f7';
-
-                    // Cek jika baris ini adalah pesanan khas
-                    if (name === "PESANAN_ADMIN") {
-                        announcementText = desc;
+                    if (cols.length < 3 || !cols[0].trim()) continue;
+                    if (cols[0].trim() === "PESANAN_ADMIN") {
+                        document.getElementById('announcement-text-display').textContent = cols[1];
+                        document.getElementById('announcement-banner').style.display = 'flex';
                         continue;
                     }
-
-                    cardsFound++;
-                    cardsHtml += `
-                        <div class="card" style="--card-color: ${color};">
-                            <div class="card-glow"></div>
-                            <div class="card-header-flex">
-                                <div class="card-icon">
-                                    <i class="fa-solid ${icon}"></i>
-                                </div>
-                            </div>
-                            <div class="card-title">${name}</div>
-                            <div class="card-desc">${desc || 'Tiada penerangan.'}</div>
-                            <a href="${url}" target="_blank" class="btn-open">
-                                Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
-                        </div>
-                    `;
+                    cardsHtml += `<div class="card" style="--card-color: ${cols[4] || '#a855f7'};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${cols[3] || 'fa-chart-line'}"></i></div></div><div class="card-title">${cols[0]}</div><div class="card-desc">${cols[1] || ''}</div><a href="${cols[2]}" target="_blank" class="btn-open">Buka Aplikasi</a></div>`;
                 }
-
+                container.innerHTML = cardsHtml || '<p>Tiada data.</p>';
                 loader.style.display = 'none';
-                
-                // Show Announcement
-                if (announcementText) {
-                    document.getElementById('announcement-text-display').textContent = announcementText;
-                    document.getElementById('announcement-banner').style.display = 'flex';
-                }
-
-                // Show Cards
-                if(cardsFound > 0) {
-                    container.innerHTML = cardsHtml;
-                } else {
-                    container.innerHTML = `<p style="color:var(--text-muted); grid-column: 1/-1; text-align:center;">Tiada dashboard direkodkan lagi di dalam pangkalan data.</p>`;
-                }
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                loader.style.display = 'none';
-                errorBox.style.display = 'block';
-            }
-        }
-
-        // Dummy data paparan sekiranya Google Sheet belum di link (Demo sahaja)
-        function renderDummyData() {
-            document.getElementById('announcement-text-display').textContent = "PENGUMUMAN ADMIN: Ini adalah paparan demo kerana Google Sheet ID belum dimasukkan. Sila kemaskini kod HTML anda.";
-            document.getElementById('announcement-banner').style.display = 'flex';
-            
-            const dummyHtml = `
-                <div class="card" style="--card-color: #a855f7;">
-                    <div class="card-glow"></div>
-                    <div class="card-header-flex"><div class="card-icon"><i class="fa-solid fa-brain"></i></div></div>
-                    <div class="card-title">Dashboard KMS2026</div>
-                    <div class="card-desc">Pemantauan program Jelajah Kedah Minda Sejahtera.</div>
-                    <a href="#" class="btn-open">Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                </div>
-                <div class="card" style="--card-color: #3b82f6;">
-                    <div class="card-glow"></div>
-                    <div class="card-header-flex"><div class="card-icon"><i class="fa-solid fa-mobile-screen"></i></div></div>
-                    <div class="card-title">NHSI PWA Dashboard</div>
-                    <div class="card-desc">Sistem saringan kesihatan kebangsaan.</div>
-                    <a href="#" class="btn-open">Buka Aplikasi <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                </div>
-            `;
-            document.getElementById('dashboard-container').innerHTML = dummyHtml;
+            } catch (e) { loader.style.display = 'none'; document.getElementById('error-box').style.display = 'block'; }
         }
 
         async function fetchReferences() {
             const tbody = document.getElementById('references-tbody');
             const loader = document.getElementById('loader-references');
-            const errorBox = document.getElementById('error-box-references');
-            const tableContainer = document.getElementById('references-container');
-            
-            tbody.innerHTML = '';
-            errorBox.style.display = 'none';
-            tableContainer.style.display = 'none';
-            loader.style.display = 'flex';
-
-            if(GOOGLE_SHEET_ID === 'MASUKKAN_ID_GOOGLE_SHEET_ANDA_DI_SINI') {
-                loader.style.display = 'none';
-                tableContainer.style.display = 'block';
-                renderDummyReferences();
-                return;
-            }
-
+            tbody.innerHTML = ''; loader.style.display = 'flex';
             try {
                 const response = await fetch(REF_URL, { cache: "no-store" });
-                if (!response.ok) throw new Error("Network response was not ok");
-                
                 const text = await response.text();
-                // Google gviz returns JSON wrapped in a function call
-                const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-                const data = JSON.parse(jsonString);
-                
-                let references = [];
-                if (data.table && data.table.rows) {
-                    // Mula dari i=1 jika baris pertama adalah tajuk (Nama, URL)
-                    for (let i = 1; i < data.table.rows.length; i++) {
-                        let cols = data.table.rows[i].c;
-                        // Pastikan ada cukup kolum
-                        if (!cols || cols.length < 2) continue;
-                        
-                        let nama = cols[0] ? cols[0].v : '';
-                        let url = cols[1] ? cols[1].v : '';
-                        
-                        if (nama && url) {
-                            references.push({ nama: String(nama), url: String(url) });
-                        }
-                    }
-                }
-                
-                // Susun ikut abjad
-                references.sort((a, b) => a.nama.localeCompare(b.nama));
-
+                const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
                 let rowsHtml = "";
-                if(references.length > 0) {
-                    references.forEach((ref, index) => {
-                        rowsHtml += `
-                            <tr class="reference-row" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-                                <td style="padding: 1rem; color: var(--text-muted);">${index + 1}</td>
-                                <td style="padding: 1rem; font-weight: 500;" class="ref-name">${ref.nama}</td>
-                                <td style="padding: 1rem; text-align: center; vertical-align: middle;">
-                                    <a href="${ref.url}" target="_blank" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">
-                                        Buka
-                                    </a>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    tbody.innerHTML = rowsHtml;
-                    document.getElementById('references-search-box').style.display = 'flex';
-                    tableContainer.style.display = 'block';
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 2.5rem; color:var(--text-muted);">Tiada bahan rujukan direkodkan di dalam Sheet2.</td></tr>`;
-                    tableContainer.style.display = 'block';
-                }
+                json.table.rows.slice(1).forEach((row, index) => {
+                    if(!row.c[0]) return;
+                    rowsHtml += `<tr class="reference-row"><td style="padding:1rem">${index+1}</td><td style="padding:1rem" class="ref-name">${row.c[0].v}</td><td style="padding:1rem; text-align:center;"><a href="${row.c[1].v}" target="_blank" class="btn-primary btn-green">Buka</a></td></tr>`;
+                });
+                tbody.innerHTML = rowsHtml;
                 loader.style.display = 'none';
-
-            } catch (error) {
-                console.error("Error fetching references:", error);
-                loader.style.display = 'none';
-                errorBox.style.display = 'block';
-            }
-        }
-
-        function renderDummyReferences() {
-            const dummyHtml = `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 1rem; color: var(--text-muted);">1</td>
-                    <td style="padding: 1rem; font-weight: 500;">Buku Panduan KMS 2026</td>
-                    <td style="padding: 1rem; text-align: center; vertical-align: middle;">
-                        <a href="#" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">Buka</a>
-                    </td>
-                </tr>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 1rem; color: var(--text-muted);">2</td>
-                    <td style="padding: 1rem; font-weight: 500;">CPG Pengurusan Hipertensi</td>
-                    <td style="padding: 1rem; text-align: center; vertical-align: middle;">
-                        <a href="#" class="btn-primary btn-green btn-shine" style="padding: 0.5rem 1.5rem; font-size: 0.9rem; border-radius: 8px; display: inline-block;">Buka</a>
-                    </td>
-                </tr>
-            `;
-            document.getElementById('references-tbody').innerHTML = dummyHtml;
+                document.getElementById('references-container').style.display = 'block';
+                document.getElementById('references-search-box').style.display = 'flex';
+            } catch (e) { loader.style.display = 'none'; }
         }
 
         function filterReferences() {
-            const query = document.getElementById('search-references').value.toLowerCase();
-            const rows = document.getElementsByClassName('reference-row');
-            
-            for (let i = 0; i < rows.length; i++) {
-                const nameCell = rows[i].querySelector('.ref-name');
-                if (nameCell) {
-                    const textValue = nameCell.textContent || nameCell.innerText;
-                    if (textValue.toLowerCase().indexOf(query) > -1) {
-                        rows[i].style.display = "";
-                    } else {
-                        rows[i].style.display = "none";
-                    }
-                }
-            }
+            const q = document.getElementById('search-references').value.toLowerCase();
+            document.querySelectorAll('.reference-row').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
         }
 
-        // ----------------------------------------------------
-        // ADMIN SETTINGS LOGIC
-        // ----------------------------------------------------
-        
         function checkPassword() {
             const pwd = document.getElementById('admin-password').value;
-            // KATA LALUAN ADMIN ADALAH "adminncd"
-            if (pwd === "adminncd" || pwd === "admin") {
+            if (pwd === "adminncd") {
                 document.getElementById('password-screen').style.display = 'none';
                 document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('password-error').style.display = 'none';
-            } else {
-                document.getElementById('password-error').style.display = 'block';
-            }
+            } else { document.getElementById('password-error').style.display = 'block'; }
         }
 
         function logoutAdmin() {
             document.getElementById('admin-password').value = '';
             document.getElementById('password-screen').style.display = 'flex';
             document.getElementById('admin-panel').style.display = 'none';
-            document.getElementById('form-msg').style.display = 'none';
         }
 
-        let submitted = false;
-
-        function onFormSubmitStart() {
-            const btn = document.getElementById('btn-submit-form');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Menghantar...';
-        }
-
+        let submitted = false, submittedRef = false;
+        function onFormSubmitStart() { document.getElementById('btn-submit-form').disabled = true; }
         function onFormSubmitSuccess() {
             submitted = false;
-            
-            // Padam semula tulisan yang telah diisi dalam form
-            document.getElementById('input-name').value = '';
-            document.getElementById('input-desc').value = '';
-            document.getElementById('input-url').value = '';
-            
-            const btn = document.getElementById('btn-submit-form');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Hantar ke Google Sheets';
-            
-            alert('TINDAKAN BERJAYA!\nMaklumat telah dihantar ke pangkalan data Google Sheets.\n\nSila tekan menu "Dashboard NCD" di kiri untuk muat semula (refresh) paparan.');
+            document.getElementById('input-name').value = ''; document.getElementById('input-desc').value = ''; document.getElementById('input-url').value = '';
+            document.getElementById('btn-submit-form').disabled = false;
+            alert('Tindakan Berjaya! Data dihantar ke Sheet1.');
         }
-
-        let submittedRef = false;
-
-        function onFormSubmitStartRef() {
-            const btn = document.getElementById('btn-submit-ref');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sedang Menghantar...';
-        }
-
+        function onFormSubmitStartRef() { document.getElementById('btn-submit-ref').disabled = true; }
         function onFormSubmitSuccessRef() {
             submittedRef = false;
-            
-            document.getElementById('input-ref-name').value = '';
-            document.getElementById('input-ref-url').value = '';
-            
-            const btn = document.getElementById('btn-submit-ref');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Tambah Rujukan';
-            
-            alert('RUJUKAN BERJAYA DITAMBAH!\nMaklumat telah dihantar ke Sheet2 dalam pangkalan data Google Sheets.\n\nSila semak di menu Koleksi Rujukan.');
-            fetchReferences(); // update the list
+            document.getElementById('input-ref-name').value = ''; document.getElementById('input-ref-url').value = '';
+            document.getElementById('btn-submit-ref').disabled = false;
+            alert('Rujukan Berjaya Ditambah ke Sheet2!');
+            fetchReferences();
         }
 
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchDashboards();
-            fetchReferences();
-            
-            // Allow Enter key to submit password
-            document.getElementById('admin-password').addEventListener('keypress', function(e) {
-                if(e.key === 'Enter') {
-                    checkPassword();
-                }
-            });
-        });
+        document.addEventListener('DOMContentLoaded', () => { fetchDashboards(); fetchReferences(); });
     </script>
 </body>
 </html>
