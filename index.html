@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyNCDKedah</title>
     
     <link rel="manifest" href="./manifest.json">
@@ -517,6 +517,23 @@
             main { padding: 1.5rem 1rem; }
             .dashboard-grid { grid-template-columns: 1fr; }
         }
+
+        /* Tambahan: borang admin & mesej status */
+        .settings-card h3 { margin-bottom: 1rem; }
+        .settings-card .form-control { margin-bottom: 10px; }
+        .form-msg { margin-top: 0.75rem; font-size: 0.95rem; min-height: 1.2em; }
+        .form-msg.ok { color: #34d399; }
+        .form-msg.err { color: #f87171; }
+        .link-btn {
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 0.9rem; margin-top: 1rem; text-decoration: underline; font-family: inherit;
+        }
+        .link-btn:hover { color: #fff; }
+        .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+        .notice-warn {
+            background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde68a; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none;
+        }
     </style>
 </head>
 <body>
@@ -530,7 +547,7 @@
                 <i class="fa-solid fa-layer-group" style="font-size: 3rem; color: #c084fc; display: none;"></i>
                 <h2>MyNCDKedah</h2>
             </div>
-            
+
             <ul class="sidebar-nav">
                 <li><a class="nav-link active" data-target="view-dashboard" onclick="switchView('view-dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard NCD</a></li>
                 <li><a class="nav-link" data-target="view-calendar" onclick="switchView('view-calendar', this)"><i class="fa-regular fa-calendar-days"></i> Kalendar NCD</a></li>
@@ -548,16 +565,17 @@
 
         <div class="main-wrapper">
             <header>
-                <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
                 <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">MyNCDKedah</div>
                 <div class="header-date" id="current-date">--</div>
             </header>
 
             <main>
+                <!-- DASHBOARD -->
                 <div id="view-dashboard" class="view-section active">
                     <div class="section-header"><h2>Koleksi Dashboard NCD</h2><p>Akses pantas dashboard pemantauan.</p></div>
                     <div id="loader"><div class="spinner"></div><p>Memuat turun data...</p></div>
-                    <div class="error-state" id="error-box"><h3>Gagal Memuat Turun Data</h3></div>
+                    <div class="error-state" id="error-box"><h3>Gagal Memuat Turun Data</h3><p style="margin-top:0.5rem">Sila semak sambungan internet dan cuba lagi.</p></div>
                     <div class="announcement-banner" id="announcement-banner">
                         <i class="fa-solid fa-bullhorn announcement-icon"></i>
                         <div class="announcement-marquee"><div class="announcement-text" id="announcement-text-display"></div></div>
@@ -565,23 +583,26 @@
                     <div class="dashboard-grid" id="dashboard-container"></div>
                 </div>
 
+                <!-- KALENDAR -->
                 <div id="view-calendar" class="view-section">
                     <div class="section-header"><h2>Kalendar Unit NCD</h2></div>
                     <div class="calendar-notice">
                         <i class="fa-solid fa-circle-info"></i>
                         <div style="flex: 1;">Jadual rasmi aktiviti Unit NCD JKN Kedah.</div>
-                        <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" class="btn-primary" style="padding: 0.5rem 1rem;">Buka Tab Baru</a>
+                        <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" rel="noopener" class="btn-primary" style="padding: 0.5rem 1rem;">Buka Tab Baru</a>
                     </div>
                     <div class="iframe-container">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
+                        <iframe src="https://calendar.google.com/calendar/embed?src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5&ctz=Asia/Kuala_Lumpur" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
                     </div>
                 </div>
 
+                <!-- RUJUKAN -->
                 <div id="view-references" class="view-section">
                     <div class="section-header"><h2>Koleksi Rujukan NCD</h2></div>
                     <div id="loader-references"><div class="spinner"></div></div>
+                    <div class="error-state" id="error-box-ref"><h3>Gagal Memuat Turun Rujukan</h3></div>
                     <div id="references-search-box" style="display:none; margin-bottom:1.5rem; background:var(--card-bg); padding:1rem; border-radius:15px;">
-                        <input type="text" id="search-references" onkeyup="filterReferences()" placeholder="Cari rujukan..." class="form-control">
+                        <input type="text" id="search-references" oninput="filterReferences()" placeholder="Cari rujukan..." class="form-control">
                     </div>
                     <div class="table-responsive" style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--card-border); padding: 1.5rem; display: none; overflow-x: auto;" id="references-container">
                         <table style="width: 100%; border-collapse: collapse; text-align: left;" id="references-table">
@@ -591,55 +612,71 @@
                     </div>
                 </div>
 
+                <!-- TETAPAN -->
                 <div id="view-settings" class="view-section">
                     <div id="password-screen">
                         <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
                         <h3>Akses Admin</h3><br>
-                        <input type="password" id="admin-password" class="form-control" placeholder="Kata laluan">
-                        <button onclick="checkPassword()" class="btn-primary" style="margin-top:10px">Log Masuk</button>
-                        <p id="password-error" style="color: #ef4444; margin-top: 1rem; display: none;">Salah.</p>
+                        <form onsubmit="checkPassword(event)" style="width:100%">
+                            <input type="password" id="admin-password" class="form-control" placeholder="Kata laluan" autocomplete="current-password" required>
+                            <button type="submit" id="btn-login" class="btn-primary" style="margin-top:10px">Log Masuk</button>
+                        </form>
+                        <p id="password-msg" class="form-msg"></p>
+                        <button type="button" class="link-btn" onclick="forgotPassword()">Lupa kata laluan?</button>
                     </div>
 
                     <div id="admin-panel" style="display: none;">
-                        <div class="settings-card" style="text-align: center;">
-                            <i class="fa-solid fa-database" style="color: #10b981; font-size: 3.5rem;"></i>
-                            <h3>Pangkalan Data</h3><br>
-                            <a href="#" id="btn-open-sheet" target="_blank" class="btn-primary btn-green"><i class="fa-solid fa-file-excel"></i> Buka Google Sheets</a>
+                        <div class="notice-warn" id="must-change-notice">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Anda log masuk menggunakan kata laluan sementara. Sila tukar kata laluan di bahagian bawah.
                         </div>
 
-                        <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){onFormSubmitSuccess();}"></iframe>
-                        <form action="https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec" method="POST" target="hidden_iframe" onsubmit="submitted=true; onFormSubmitStart();" class="settings-card">
+                        <div class="settings-card" style="text-align: center;">
+                            <i class="fa-solid fa-database" style="color: #10b981; font-size: 3.5rem;"></i>
+                            <h3 style="margin-top:1rem">Pangkalan Data</h3>
+                            <a href="#" id="btn-open-sheet" target="_blank" rel="noopener" class="btn-primary btn-green"><i class="fa-solid fa-file-excel"></i> Buka Google Sheets</a>
+                        </div>
+
+                        <form onsubmit="handleAdd(event, 'Sheet1', 'btn-submit-form', 'msg-sheet1')" class="settings-card">
                             <h3>+ Tambah Dashboard (Sheet1)</h3>
-                            <input type="hidden" name="sheet" value="Sheet1">
-                            <input type="text" name="nama" id="input-name" class="form-control" placeholder="Nama Dashboard" required>
-                            <input type="text" name="penerangan" id="input-desc" class="form-control" placeholder="Penerangan">
-                            <input type="url" name="url" id="input-url" class="form-control" placeholder="URL Pautan" required>
+                            <input type="text" name="nama" class="form-control" placeholder="Nama Dashboard" maxlength="100" required>
+                            <input type="text" name="penerangan" class="form-control" placeholder="Penerangan" maxlength="300">
+                            <input type="url" name="url" class="form-control" placeholder="URL Pautan (https://...)" pattern="https://.+" required>
                             <div style="display: flex; gap: 10px;">
-                                <select name="ikon" id="input-icon" class="form-control">
-                                        <option value="fa-chart-pie">Carta</option>
-                                        <option value="fa-brain">Mental</option>
-                                        <option value="fa-heart-pulse">KOSPEN</option>
-                                        <option value="fa-user-doctor">Doktor</option>
-                                        <option value="fa-capsules">Ubat</option>
-                                        <option value="fa-droplet">Fluid</option>
-                                        <option value="fa-weight-scale">Weighing Scale</option>
-                                        <option value="fa-apple-whole">Diet Sihat</option>
-                                        <option value="fa-person-running">Kecergasan</option>
-                                        <option value="fa-hospital">Fasiliti</option>
-                                        <option value="fa-sheet-plastic">Rekod</option>
+                                <select name="ikon" class="form-control">
+                                    <option value="fa-chart-pie">Carta</option>
+                                    <option value="fa-brain">Mental</option>
+                                    <option value="fa-heart-pulse">KOSPEN</option>
+                                    <option value="fa-user-doctor">Doktor</option>
+                                    <option value="fa-capsules">Ubat</option>
+                                    <option value="fa-droplet">Fluid</option>
+                                    <option value="fa-weight-scale">Weighing Scale</option>
+                                    <option value="fa-apple-whole">Diet Sihat</option>
+                                    <option value="fa-person-running">Kecergasan</option>
+                                    <option value="fa-hospital">Fasiliti</option>
+                                    <option value="fa-sheet-plastic">Rekod</option>
                                 </select>
-                                <input type="color" name="warna" id="input-color" class="form-control" value="#a855f7" style="height:48px">
+                                <input type="color" name="warna" class="form-control" value="#a855f7" style="height:48px">
                             </div>
-                            <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top:15px">Hantar ke Sheet1</button>
+                            <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top:5px">Hantar ke Sheet1</button>
+                            <p class="form-msg" id="msg-sheet1"></p>
                         </form>
 
-                        <iframe name="hidden_iframe_ref" id="hidden_iframe_ref" style="display:none;" onload="if(submittedRef){onFormSubmitSuccessRef();}"></iframe>
-                        <form action="https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec" method="POST" target="hidden_iframe_ref" onsubmit="submittedRef=true; onFormSubmitStartRef();" class="settings-card">
+                        <form onsubmit="handleAdd(event, 'Sheet2', 'btn-submit-ref', 'msg-sheet2')" class="settings-card">
                             <h3>+ Tambah Rujukan (Sheet2)</h3>
-                            <input type="hidden" name="sheet" value="Sheet2">
-                            <input type="text" name="Nama" id="input-ref-name" class="form-control" placeholder="Nama Bahan" required>
-                            <input type="url" name="URL" id="input-ref-url" class="form-control" placeholder="URL Drive/PDF" required>
-                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="margin-top:15px">Tambah ke Sheet2</button>
+                            <input type="text" name="Nama" class="form-control" placeholder="Nama Bahan" maxlength="200" required>
+                            <input type="url" name="URL" class="form-control" placeholder="URL Drive/PDF (https://...)" pattern="https://.+" required>
+                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="margin-top:5px">Tambah ke Sheet2</button>
+                            <p class="form-msg" id="msg-sheet2"></p>
+                        </form>
+
+                        <form onsubmit="changePassword(event)" class="settings-card" id="change-pwd-card">
+                            <h3><i class="fa-solid fa-key"></i> Tukar Kata Laluan</h3>
+                            <input type="password" id="pwd-current" class="form-control" placeholder="Kata laluan semasa" autocomplete="current-password" required>
+                            <input type="password" id="pwd-new" class="form-control" placeholder="Kata laluan baharu (min. 8 aksara)" minlength="8" autocomplete="new-password" required>
+                            <input type="password" id="pwd-confirm" class="form-control" placeholder="Sahkan kata laluan baharu" minlength="8" autocomplete="new-password" required>
+                            <button type="submit" id="btn-change-pwd" class="btn-primary" style="margin-top:5px">Tukar Kata Laluan</button>
+                            <p class="form-msg" id="msg-pwd"></p>
                         </form>
 
                         <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin: 0 auto;">Log Keluar</button>
@@ -654,36 +691,30 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
-                    console.log('SW Registered');
-                    // Check for updates
                     reg.onupdatefound = () => {
                         const installingWorker = reg.installing;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                if(confirm("Versi baru tersedia! Muat semula?")) window.location.reload();
+                                if (confirm("Versi baru tersedia! Muat semula?")) window.location.reload();
                             }
                         };
                     };
-                });
+                }).catch(() => {});
             });
         }
 
         // 2. LOGIK BUTANG "SIMPAN SEBAGAI APP"
         let deferredPrompt;
         const installBtn = document.getElementById('sidebar-install-btn');
-
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Tunjukkan butang jika prompt tersedia
             installBtn.style.display = 'flex';
         });
-
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') console.log('User installed PWA');
+                await deferredPrompt.userChoice;
                 deferredPrompt = null;
                 installBtn.style.display = 'none';
             } else {
@@ -691,18 +722,48 @@
             }
         });
 
-        // 3. KONFIGURASI DATA
-        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA'; 
-        const TSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=tsv`;
-        const REF_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet2`;
+        // 3. KONFIGURASI
+        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec';
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
+        const EMAIL_UNIT = 'ncdjkn.kdh@moh.gov.my';
 
         document.getElementById('btn-open-sheet').href = EDIT_URL;
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // 4. FUNGSI UI & FETCH DATA
+        // 4. UTILITI KESELAMATAN — semua data dari Sheet ditapis sebelum dipaparkan
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const safeUrl = u => { u = String(u || '').trim(); return /^https?:\/\/[^\s"'<>]+$/i.test(u) ? u : ''; };
+        const safeColor = c => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(c || '').trim()) ? String(c).trim() : '#a855f7';
+        const safeIcon = i => /^fa-[a-z0-9-]{1,40}$/.test(String(i || '').trim()) ? String(i).trim() : 'fa-chart-line';
+
+        // Baca Sheet melalui gviz (headers=1 → baris tajuk sentiasa dikecualikan)
+        async function fetchSheet(sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+            if (json.status === 'error' || !json.table) throw new Error('Sheet tidak dapat dibaca');
+            return json.table.rows.map(r => (r.c || []).map(c => (c && c.v != null) ? String(c.v) : ''));
+        }
+
+        // Panggil Apps Script (form-urlencoded → tiada CORS preflight)
+        async function api(params) {
+            const res = await fetch(API_URL, { method: 'POST', body: new URLSearchParams(params) });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
+        function setMsg(id, text, ok) {
+            const el = document.getElementById(id);
+            el.textContent = text || '';
+            el.className = 'form-msg' + (text ? (ok ? ' ok' : ' err') : '');
+        }
+
+        // 5. FUNGSI UI & PAPARAN DATA
         function toggleSidebar() {
-            if(window.innerWidth <= 900) {
+            if (window.innerWidth <= 900) {
                 document.getElementById('sidebar').classList.toggle('open');
                 document.getElementById('sidebarOverlay').classList.toggle('active');
             }
@@ -713,53 +774,67 @@
             element.classList.add('active');
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
-            if(window.innerWidth <= 900) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
-            if(targetId === 'view-dashboard') fetchDashboards();
-            if(targetId === 'view-references') fetchReferences();
+            if (window.innerWidth <= 900) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+            if (targetId === 'view-dashboard') fetchDashboards();
+            if (targetId === 'view-references') fetchReferences();
         }
 
         async function fetchDashboards() {
             const container = document.getElementById('dashboard-container');
             const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('error-box');
+            const banner = document.getElementById('announcement-banner');
             container.innerHTML = ''; loader.style.display = 'flex';
+            errorBox.style.display = 'none'; banner.style.display = 'none';
             try {
-                const response = await fetch(TSV_URL, { cache: "no-store" });
-                const text = await response.text();
-                const rows = text.split('\n');
-                let cardsHtml = "";
-                for (let i = 1; i < rows.length; i++) {
-                    const cols = rows[i].split('\t');
-                    if (cols.length < 3 || !cols[0].trim()) continue;
-                    if (cols[0].trim() === "PESANAN_ADMIN") {
-                        document.getElementById('announcement-text-display').textContent = cols[1];
-                        document.getElementById('announcement-banner').style.display = 'flex';
-                        continue;
+                const rows = await fetchSheet('Sheet1');
+                let html = '';
+                rows.forEach(c => {
+                    const nama = (c[0] || '').trim();
+                    if (!nama) return;
+                    if (nama === 'PESANAN_ADMIN') {
+                        if (c[1]) {
+                            document.getElementById('announcement-text-display').textContent = c[1];
+                            banner.style.display = 'flex';
+                        }
+                        return;
                     }
-                    cardsHtml += `<div class="card" style="--card-color: ${cols[4] || '#a855f7'};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${cols[3] || 'fa-chart-line'}"></i></div></div><div class="card-title">${cols[0]}</div><div class="card-desc">${cols[1] || ''}</div><a href="${cols[2]}" target="_blank" class="btn-open">Buka Aplikasi</a></div>`;
-                }
-                container.innerHTML = cardsHtml;
+                    const url = safeUrl(c[2]);
+                    if (!url) return;
+                    html += `<div class="card" style="--card-color: ${safeColor(c[4])};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(c[3])}"></i></div></div><div class="card-title">${esc(nama)}</div><div class="card-desc">${esc(c[1])}</div><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a></div>`;
+                });
+                container.innerHTML = html || '<p style="color:var(--text-muted)">Tiada dashboard untuk dipaparkan.</p>';
+            } catch (e) {
+                errorBox.style.display = 'block';
+            } finally {
                 loader.style.display = 'none';
-            } catch (e) { loader.style.display = 'none'; document.getElementById('error-box').style.display = 'block'; }
+            }
         }
 
         async function fetchReferences() {
             const tbody = document.getElementById('references-tbody');
             const loader = document.getElementById('loader-references');
-            tbody.innerHTML = ''; loader.style.display = 'flex';
+            const errorBox = document.getElementById('error-box-ref');
+            tbody.innerHTML = ''; loader.style.display = 'flex'; errorBox.style.display = 'none';
             try {
-                const response = await fetch(REF_URL, { cache: "no-store" });
-                const text = await response.text();
-                const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-                let rowsHtml = "";
-                json.table.rows.slice(1).forEach((row, idx) => {
-                    if(!row.c[0]) return;
-                    rowsHtml += `<tr class="reference-row"><td style="padding:1rem">${idx+1}</td><td style="padding:1rem" class="ref-name">${row.c[0].v}</td><td style="padding:1rem; text-align:center;"><a href="${row.c[1].v}" target="_blank" class="btn-primary btn-green">Buka</a></td></tr>`;
+                const rows = await fetchSheet('Sheet2');
+                let html = '', n = 0;
+                rows.forEach(c => {
+                    const nama = (c[0] || '').trim();
+                    const url = safeUrl(c[1]);
+                    if (!nama || !url) return;
+                    n++;
+                    html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(nama)}</td><td style="padding:1rem; text-align:center;"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a></td></tr>`;
                 });
-                tbody.innerHTML = rowsHtml;
-                loader.style.display = 'none';
+                tbody.innerHTML = html || '<tr><td colspan="3" style="padding:1rem; color:var(--text-muted)">Tiada rujukan.</td></tr>';
                 document.getElementById('references-container').style.display = 'block';
                 document.getElementById('references-search-box').style.display = 'block';
-            } catch (e) { loader.style.display = 'none'; }
+                filterReferences();
+            } catch (e) {
+                errorBox.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
         }
 
         function filterReferences() {
@@ -769,36 +844,97 @@
             });
         }
 
-        // 5. ADMIN SETTINGS
-        function checkPassword() {
-            const pwd = document.getElementById('admin-password').value;
-            if (pwd === "adminncd") {
-                document.getElementById('password-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-            } else { document.getElementById('password-error').style.display = 'block'; }
+        // 6. ADMIN — semakan kata laluan dibuat di Apps Script, bukan di sini
+        let sessionToken = null;
+
+        async function checkPassword(ev) {
+            ev.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const input = document.getElementById('admin-password');
+            btn.disabled = true; setMsg('password-msg', 'Menyemak...', true);
+            try {
+                const r = await api({ action: 'login', password: input.value });
+                if (r.ok) {
+                    sessionToken = r.token;
+                    input.value = ''; setMsg('password-msg', '');
+                    document.getElementById('password-screen').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('must-change-notice').style.display = r.mustChange ? 'block' : 'none';
+                    if (r.mustChange) document.getElementById('change-pwd-card').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    setMsg('password-msg', r.msg || 'Log masuk gagal.', false);
+                }
+            } catch (e) {
+                setMsg('password-msg', 'Tidak dapat menghubungi pelayan. Cuba lagi.', false);
+            } finally { btn.disabled = false; }
         }
 
-        function logoutAdmin() {
+        async function forgotPassword() {
+            if (!confirm(`Hantar kata laluan sementara ke emel unit (${EMAIL_UNIT})?\n\nKata laluan sedia ada masih boleh digunakan sehingga kata laluan sementara digunakan.`)) return;
+            setMsg('password-msg', 'Menghantar...', true);
+            try {
+                const r = await api({ action: 'reset' });
+                setMsg('password-msg', r.msg, r.ok);
+            } catch (e) {
+                setMsg('password-msg', 'Tidak dapat menghubungi pelayan. Cuba lagi.', false);
+            }
+        }
+
+        function sessionExpired(msgId) {
+            logoutAdmin(true);
+            setMsg('password-msg', 'Sesi tamat. Sila log masuk semula.', false);
+        }
+
+        async function handleAdd(ev, sheet, btnId, msgId) {
+            ev.preventDefault();
+            const form = ev.target, btn = document.getElementById(btnId);
+            const params = Object.fromEntries(new FormData(form).entries());
+            Object.assign(params, { action: 'add', sheet, token: sessionToken });
+            btn.disabled = true; setMsg(msgId, 'Menghantar...', true);
+            try {
+                const r = await api(params);
+                if (r.expired) return sessionExpired(msgId);
+                setMsg(msgId, r.msg, r.ok);
+                if (r.ok) {
+                    form.reset();
+                    if (sheet === 'Sheet1') fetchDashboards(); else fetchReferences();
+                }
+            } catch (e) {
+                setMsg(msgId, 'Gagal menghantar. Semak sambungan dan cuba lagi.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        async function changePassword(ev) {
+            ev.preventDefault();
+            const cur = document.getElementById('pwd-current').value;
+            const np = document.getElementById('pwd-new').value;
+            const cf = document.getElementById('pwd-confirm').value;
+            if (np !== cf) return setMsg('msg-pwd', 'Pengesahan kata laluan tidak sepadan.', false);
+            const btn = document.getElementById('btn-change-pwd');
+            btn.disabled = true; setMsg('msg-pwd', 'Mengemas kini...', true);
+            try {
+                const r = await api({ action: 'change', token: sessionToken, current: cur, newPassword: np });
+                if (r.expired) return sessionExpired('msg-pwd');
+                setMsg('msg-pwd', r.msg, r.ok);
+                if (r.ok) {
+                    sessionToken = r.token;
+                    ev.target.reset();
+                    document.getElementById('must-change-notice').style.display = 'none';
+                }
+            } catch (e) {
+                setMsg('msg-pwd', 'Gagal menghubungi pelayan.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        function logoutAdmin(silent) {
+            if (sessionToken && silent !== true) api({ action: 'logout', token: sessionToken }).catch(() => {});
+            sessionToken = null;
             document.getElementById('admin-password').value = '';
+            document.querySelectorAll('#admin-panel form').forEach(f => f.reset());
+            document.querySelectorAll('#admin-panel .form-msg').forEach(el => setMsg(el.id, ''));
+            setMsg('password-msg', '');
             document.getElementById('password-screen').style.display = 'flex';
             document.getElementById('admin-panel').style.display = 'none';
-        }
-
-        let submitted = false, submittedRef = false;
-        function onFormSubmitStart() { document.getElementById('btn-submit-form').disabled = true; }
-        function onFormSubmitSuccess() {
-            submitted = false;
-            document.getElementById('input-name').value = ''; document.getElementById('input-desc').value = ''; document.getElementById('input-url').value = '';
-            document.getElementById('btn-submit-form').disabled = false;
-            alert('Berjaya hantar ke Sheet1!');
-        }
-        function onFormSubmitStartRef() { document.getElementById('btn-submit-ref').disabled = true; }
-        function onFormSubmitSuccessRef() {
-            submittedRef = false;
-            document.getElementById('input-ref-name').value = ''; document.getElementById('input-ref-url').value = '';
-            document.getElementById('btn-submit-ref').disabled = false;
-            alert('Berjaya hantar ke Sheet2!');
-            fetchReferences();
         }
 
         document.addEventListener('DOMContentLoaded', () => { fetchDashboards(); fetchReferences(); });
