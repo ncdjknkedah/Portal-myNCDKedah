@@ -530,6 +530,30 @@
         }
         .link-btn:hover { color: #fff; }
         .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+        .badge-dalaman {
+            font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 999px;
+            background: rgba(234, 179, 8, 0.15); color: #fde68a; border: 1px solid rgba(234, 179, 8, 0.35);
+            white-space: nowrap;
+        }
+        .member-btn {
+            margin-left: 1.25rem; background: rgba(255,255,255,0.05); color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 0.45rem 0.9rem;
+            font-family: inherit; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s;
+        }
+        .member-btn:hover { color: #fff; border-color: var(--primary); }
+        .member-btn.on { color: #fde68a; border-color: rgba(234, 179, 8, 0.5); background: rgba(234, 179, 8, 0.1); }
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 300; display: none; align-items: center; justify-content: center; padding: 1rem;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-box {
+            background: #150f22; border: 1px solid var(--card-border); border-radius: 20px;
+            padding: 2rem; width: 100%; max-width: 380px; text-align: center;
+        }
+        .modal-box .form-control { margin-bottom: 10px; }
+        @media (max-width: 900px) { .member-btn { margin-left: auto; } }
         .notice-warn {
             background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35);
             color: #fde68a; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none;
@@ -539,6 +563,21 @@
 <body>
 
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="modal-backdrop" id="member-modal" onclick="if(event.target===this) closeMemberModal()">
+        <div class="modal-box">
+            <i class="fa-solid fa-users-gear" style="font-size: 2.5rem; color: #fde68a; margin-bottom: 0.75rem;"></i>
+            <h3 style="margin-bottom: 0.4rem;">Akses Ahli Unit NCD</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem;">Log masuk untuk melihat pautan kegunaan dalaman Unit NCD JKN Kedah.</p>
+            <form onsubmit="memberLogin(event)">
+                <input type="password" id="member-password" class="form-control" placeholder="Kata laluan ahli" autocomplete="current-password" required>
+                <button type="submit" id="btn-member-login" class="btn-primary" style="width:100%; justify-content:center;">Log Masuk</button>
+            </form>
+            <p class="form-msg" id="member-msg"></p>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Lupa kata laluan? Hubungi admin portal.</p>
+            <button type="button" class="link-btn" onclick="closeMemberModal()">Tutup</button>
+        </div>
+    </div>
 
     <div class="app-wrapper">
         <aside class="sidebar" id="sidebar">
@@ -568,6 +607,7 @@
                 <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
                 <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">MyNCDKedah</div>
                 <div class="header-date" id="current-date">--</div>
+                <button class="member-btn" id="member-btn" onclick="onMemberBtn()"><i class="fa-solid fa-lock"></i> <span>Ahli NCD</span></button>
             </header>
 
             <main>
@@ -658,6 +698,10 @@
                                 </select>
                                 <input type="color" name="warna" class="form-control" value="#a855f7" style="height:48px">
                             </div>
+                            <select name="akses" class="form-control">
+                                <option value="Umum">Akses: Umum (semua pengguna)</option>
+                                <option value="Dalaman">Akses: Dalaman (Ahli Unit NCD sahaja)</option>
+                            </select>
                             <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top:5px">Hantar ke Sheet1</button>
                             <p class="form-msg" id="msg-sheet1"></p>
                         </form>
@@ -666,12 +710,27 @@
                             <h3>+ Tambah Rujukan (Sheet2)</h3>
                             <input type="text" name="Nama" class="form-control" placeholder="Nama Bahan" maxlength="200" required>
                             <input type="url" name="URL" class="form-control" placeholder="URL Drive/PDF (https://...)" pattern="https://.+" required>
+                            <select name="akses" class="form-control">
+                                <option value="Umum">Akses: Umum (semua pengguna)</option>
+                                <option value="Dalaman">Akses: Dalaman (Ahli Unit NCD sahaja)</option>
+                            </select>
                             <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="margin-top:5px">Tambah ke Sheet2</button>
                             <p class="form-msg" id="msg-sheet2"></p>
                         </form>
 
+                        <form onsubmit="setMemberPassword(event)" class="settings-card">
+                            <h3><i class="fa-solid fa-users-gear"></i> Kata Laluan Ahli Unit NCD</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Kata laluan bersama untuk ahli Unit NCD negeri melihat pautan Dalaman. Menukarnya akan log keluar semua ahli.</p>
+                            <input type="text" id="member-new" class="form-control" placeholder="Kata laluan ahli baharu (min. 8 aksara)" minlength="8" autocomplete="off">
+                            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:5px;">
+                                <button type="submit" id="btn-set-member" class="btn-primary">Tetapkan</button>
+                                <button type="button" id="btn-gen-member" class="btn-primary btn-blue" onclick="setMemberPassword(event, true)">Jana Rawak &amp; Emel ke Unit</button>
+                            </div>
+                            <p class="form-msg" id="msg-member"></p>
+                        </form>
+
                         <form onsubmit="changePassword(event)" class="settings-card" id="change-pwd-card">
-                            <h3><i class="fa-solid fa-key"></i> Tukar Kata Laluan</h3>
+                            <h3><i class="fa-solid fa-key"></i> Tukar Kata Laluan Admin</h3>
                             <input type="password" id="pwd-current" class="form-control" placeholder="Kata laluan semasa" autocomplete="current-password" required>
                             <input type="password" id="pwd-new" class="form-control" placeholder="Kata laluan baharu (min. 8 aksara)" minlength="8" autocomplete="new-password" required>
                             <input type="password" id="pwd-confirm" class="form-control" placeholder="Sahkan kata laluan baharu" minlength="8" autocomplete="new-password" required>
@@ -727,26 +786,17 @@
         const API_URL = 'https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec';
         const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
         const EMAIL_UNIT = 'ncdjkn.kdh@moh.gov.my';
+        const MEMBER_KEY = 'myncdkedah_member_token';
 
         document.getElementById('btn-open-sheet').href = EDIT_URL;
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // 4. UTILITI KESELAMATAN — semua data dari Sheet ditapis sebelum dipaparkan
+        // 4. UTILITI — semua data ditapis sebelum dipaparkan
         const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const safeUrl = u => { u = String(u || '').trim(); return /^https?:\/\/[^\s"'<>]+$/i.test(u) ? u : ''; };
         const safeColor = c => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(c || '').trim()) ? String(c).trim() : '#a855f7';
         const safeIcon = i => /^fa-[a-z0-9-]{1,40}$/.test(String(i || '').trim()) ? String(i).trim() : 'fa-chart-line';
-
-        // Baca Sheet melalui gviz (headers=1 → baris tajuk sentiasa dikecualikan)
-        async function fetchSheet(sheetName) {
-            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
-            const res = await fetch(url, { cache: 'no-store' });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const text = await res.text();
-            const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-            if (json.status === 'error' || !json.table) throw new Error('Sheet tidak dapat dibaca');
-            return json.table.rows.map(r => (r.c || []).map(c => (c && c.v != null) ? String(c.v) : ''));
-        }
+        const BADGE = '<span class="badge-dalaman"><i class="fa-solid fa-lock"></i> Dalaman NCD</span>';
 
         // Panggil Apps Script (form-urlencoded → tiada CORS preflight)
         async function api(params) {
@@ -761,7 +811,58 @@
             el.className = 'form-msg' + (text ? (ok ? ' ok' : ' err') : '');
         }
 
-        // 5. FUNGSI UI & PAPARAN DATA
+        // 5. SESI: admin (memori sahaja) & ahli (disimpan pada peranti 30 hari)
+        let adminToken = null;
+        let memberToken = null;
+        try { memberToken = localStorage.getItem(MEMBER_KEY); } catch (e) {}
+
+        function saveMemberToken(t) {
+            memberToken = t;
+            try { t ? localStorage.setItem(MEMBER_KEY, t) : localStorage.removeItem(MEMBER_KEY); } catch (e) {}
+        }
+
+        function updateMemberBtn() {
+            const btn = document.getElementById('member-btn');
+            const on = !!(adminToken || memberToken);
+            btn.classList.toggle('on', on);
+            btn.innerHTML = on
+                ? `<i class="fa-solid fa-lock-open"></i> <span>${adminToken ? 'Admin' : 'Ahli NCD'}</span>`
+                : `<i class="fa-solid fa-lock"></i> <span>Ahli NCD</span>`;
+            btn.title = on ? 'Klik untuk log keluar' : 'Log masuk Ahli Unit NCD';
+        }
+
+        function onMemberBtn() {
+            if (adminToken) { alert('Anda sedang log masuk sebagai admin. Log keluar melalui menu Tetapan.'); return; }
+            if (memberToken) {
+                if (confirm('Log keluar akses Ahli Unit NCD pada peranti ini?')) { saveMemberToken(null); updateMemberBtn(); loadData(); }
+                return;
+            }
+            document.getElementById('member-modal').classList.add('open');
+            setMsg('member-msg', '');
+            setTimeout(() => document.getElementById('member-password').focus(), 50);
+        }
+
+        function closeMemberModal() {
+            document.getElementById('member-modal').classList.remove('open');
+            document.getElementById('member-password').value = '';
+        }
+
+        async function memberLogin(ev) {
+            ev.preventDefault();
+            const btn = document.getElementById('btn-member-login');
+            btn.disabled = true; setMsg('member-msg', 'Menyemak...', true);
+            try {
+                const r = await api({ action: 'login', role: 'member', password: document.getElementById('member-password').value });
+                if (r.ok) {
+                    saveMemberToken(r.token);
+                    closeMemberModal(); updateMemberBtn(); loadData();
+                } else setMsg('member-msg', r.msg || 'Log masuk gagal.', false);
+            } catch (e) {
+                setMsg('member-msg', 'Tidak dapat menghubungi pelayan. Cuba lagi.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        // 6. UI & PAPARAN DATA
         function toggleSidebar() {
             if (window.innerWidth <= 900) {
                 document.getElementById('sidebar').classList.toggle('open');
@@ -775,66 +876,62 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(targetId).classList.add('active');
             if (window.innerWidth <= 900) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
-            if (targetId === 'view-dashboard') fetchDashboards();
-            if (targetId === 'view-references') fetchReferences();
+            if (targetId === 'view-dashboard' || targetId === 'view-references') loadData();
         }
 
-        async function fetchDashboards() {
-            const container = document.getElementById('dashboard-container');
-            const loader = document.getElementById('loader');
-            const errorBox = document.getElementById('error-box');
+        let loading = null;
+        async function loadData() {
+            if (loading) return loading;
+            const loader = document.getElementById('loader'), loaderRef = document.getElementById('loader-references');
+            loader.style.display = 'flex'; loaderRef.style.display = 'flex';
+            document.getElementById('error-box').style.display = 'none';
+            document.getElementById('error-box-ref').style.display = 'none';
+            loading = (async () => {
+                try {
+                    const r = await api({ action: 'data', token: adminToken || memberToken || '' });
+                    if (!r.ok) throw new Error(r.msg);
+                    if (r.tokenInvalid && !adminToken && memberToken) { saveMemberToken(null); updateMemberBtn(); }
+                    renderDashboards(r.dashboards || [], r.announcement || '');
+                    renderReferences(r.references || []);
+                } catch (e) {
+                    document.getElementById('error-box').style.display = 'block';
+                    document.getElementById('error-box-ref').style.display = 'block';
+                } finally {
+                    loader.style.display = 'none'; loaderRef.style.display = 'none';
+                    loading = null;
+                }
+            })();
+            return loading;
+        }
+
+        function renderDashboards(items, announcement) {
             const banner = document.getElementById('announcement-banner');
-            container.innerHTML = ''; loader.style.display = 'flex';
-            errorBox.style.display = 'none'; banner.style.display = 'none';
-            try {
-                const rows = await fetchSheet('Sheet1');
-                let html = '';
-                rows.forEach(c => {
-                    const nama = (c[0] || '').trim();
-                    if (!nama) return;
-                    if (nama === 'PESANAN_ADMIN') {
-                        if (c[1]) {
-                            document.getElementById('announcement-text-display').textContent = c[1];
-                            banner.style.display = 'flex';
-                        }
-                        return;
-                    }
-                    const url = safeUrl(c[2]);
-                    if (!url) return;
-                    html += `<div class="card" style="--card-color: ${safeColor(c[4])};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(c[3])}"></i></div></div><div class="card-title">${esc(nama)}</div><div class="card-desc">${esc(c[1])}</div><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a></div>`;
-                });
-                container.innerHTML = html || '<p style="color:var(--text-muted)">Tiada dashboard untuk dipaparkan.</p>';
-            } catch (e) {
-                errorBox.style.display = 'block';
-            } finally {
-                loader.style.display = 'none';
-            }
+            if (announcement) {
+                document.getElementById('announcement-text-display').textContent = announcement;
+                banner.style.display = 'flex';
+            } else banner.style.display = 'none';
+
+            let html = '';
+            items.forEach(d => {
+                const url = safeUrl(d.url);
+                if (!url) return;
+                html += `<div class="card" style="--card-color: ${safeColor(d.warna)};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(d.ikon)}"></i></div>${d.dalaman ? BADGE : ''}</div><div class="card-title">${esc(d.nama)}</div><div class="card-desc">${esc(d.penerangan)}</div><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a></div>`;
+            });
+            document.getElementById('dashboard-container').innerHTML = html || '<p style="color:var(--text-muted)">Tiada dashboard untuk dipaparkan.</p>';
         }
 
-        async function fetchReferences() {
-            const tbody = document.getElementById('references-tbody');
-            const loader = document.getElementById('loader-references');
-            const errorBox = document.getElementById('error-box-ref');
-            tbody.innerHTML = ''; loader.style.display = 'flex'; errorBox.style.display = 'none';
-            try {
-                const rows = await fetchSheet('Sheet2');
-                let html = '', n = 0;
-                rows.forEach(c => {
-                    const nama = (c[0] || '').trim();
-                    const url = safeUrl(c[1]);
-                    if (!nama || !url) return;
-                    n++;
-                    html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(nama)}</td><td style="padding:1rem; text-align:center;"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a></td></tr>`;
-                });
-                tbody.innerHTML = html || '<tr><td colspan="3" style="padding:1rem; color:var(--text-muted)">Tiada rujukan.</td></tr>';
-                document.getElementById('references-container').style.display = 'block';
-                document.getElementById('references-search-box').style.display = 'block';
-                filterReferences();
-            } catch (e) {
-                errorBox.style.display = 'block';
-            } finally {
-                loader.style.display = 'none';
-            }
+        function renderReferences(items) {
+            let html = '', n = 0;
+            items.forEach(x => {
+                const url = safeUrl(x.url);
+                if (!url) return;
+                n++;
+                html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(x.nama)} ${x.dalaman ? BADGE : ''}</td><td style="padding:1rem; text-align:center;"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a></td></tr>`;
+            });
+            document.getElementById('references-tbody').innerHTML = html || '<tr><td colspan="3" style="padding:1rem; color:var(--text-muted)">Tiada rujukan.</td></tr>';
+            document.getElementById('references-container').style.display = 'block';
+            document.getElementById('references-search-box').style.display = 'block';
+            filterReferences();
         }
 
         function filterReferences() {
@@ -844,23 +941,22 @@
             });
         }
 
-        // 6. ADMIN — semakan kata laluan dibuat di Apps Script, bukan di sini
-        let sessionToken = null;
-
+        // 7. ADMIN — semakan kata laluan dibuat di Apps Script
         async function checkPassword(ev) {
             ev.preventDefault();
             const btn = document.getElementById('btn-login');
             const input = document.getElementById('admin-password');
             btn.disabled = true; setMsg('password-msg', 'Menyemak...', true);
             try {
-                const r = await api({ action: 'login', password: input.value });
+                const r = await api({ action: 'login', role: 'admin', password: input.value });
                 if (r.ok) {
-                    sessionToken = r.token;
+                    adminToken = r.token;
                     input.value = ''; setMsg('password-msg', '');
                     document.getElementById('password-screen').style.display = 'none';
                     document.getElementById('admin-panel').style.display = 'block';
                     document.getElementById('must-change-notice').style.display = r.mustChange ? 'block' : 'none';
                     if (r.mustChange) document.getElementById('change-pwd-card').scrollIntoView({ behavior: 'smooth' });
+                    updateMemberBtn(); loadData();
                 } else {
                     setMsg('password-msg', r.msg || 'Log masuk gagal.', false);
                 }
@@ -870,7 +966,7 @@
         }
 
         async function forgotPassword() {
-            if (!confirm(`Hantar kata laluan sementara ke emel unit (${EMAIL_UNIT})?\n\nKata laluan sedia ada masih boleh digunakan sehingga kata laluan sementara digunakan.`)) return;
+            if (!confirm(`Hantar kata laluan admin sementara ke emel unit (${EMAIL_UNIT})?\n\nKata laluan sedia ada masih boleh digunakan sehingga kata laluan sementara digunakan.`)) return;
             setMsg('password-msg', 'Menghantar...', true);
             try {
                 const r = await api({ action: 'reset' });
@@ -880,8 +976,8 @@
             }
         }
 
-        function sessionExpired(msgId) {
-            logoutAdmin(true);
+        function sessionExpired() {
+            logoutAdmin();
             setMsg('password-msg', 'Sesi tamat. Sila log masuk semula.', false);
         }
 
@@ -889,19 +985,35 @@
             ev.preventDefault();
             const form = ev.target, btn = document.getElementById(btnId);
             const params = Object.fromEntries(new FormData(form).entries());
-            Object.assign(params, { action: 'add', sheet, token: sessionToken });
+            Object.assign(params, { action: 'add', sheet, token: adminToken });
             btn.disabled = true; setMsg(msgId, 'Menghantar...', true);
             try {
                 const r = await api(params);
-                if (r.expired) return sessionExpired(msgId);
+                if (r.expired) return sessionExpired();
                 setMsg(msgId, r.msg, r.ok);
-                if (r.ok) {
-                    form.reset();
-                    if (sheet === 'Sheet1') fetchDashboards(); else fetchReferences();
-                }
+                if (r.ok) { form.reset(); loadData(); }
             } catch (e) {
                 setMsg(msgId, 'Gagal menghantar. Semak sambungan dan cuba lagi.', false);
             } finally { btn.disabled = false; }
+        }
+
+        async function setMemberPassword(ev, generate) {
+            ev.preventDefault();
+            const input = document.getElementById('member-new');
+            if (!generate && input.value.length < 8) return setMsg('msg-member', 'Minimum 8 aksara.', false);
+            if (!confirm(generate
+                ? `Jana kata laluan ahli baharu dan emel ke ${EMAIL_UNIT}?\nSemua ahli akan dilog keluar.`
+                : 'Tetapkan kata laluan ahli baharu?\nSemua ahli akan dilog keluar.')) return;
+            const btns = [document.getElementById('btn-set-member'), document.getElementById('btn-gen-member')];
+            btns.forEach(b => b.disabled = true); setMsg('msg-member', 'Mengemas kini...', true);
+            try {
+                const r = await api({ action: 'setMember', token: adminToken, newPassword: generate ? '' : input.value, generate: generate ? '1' : '' });
+                if (r.expired) return sessionExpired();
+                setMsg('msg-member', r.ok && r.password ? `${r.msg} Kata laluan: ${r.password}` : r.msg, r.ok);
+                if (r.ok) { input.value = ''; saveMemberToken(null); }
+            } catch (e) {
+                setMsg('msg-member', 'Gagal menghubungi pelayan.', false);
+            } finally { btns.forEach(b => b.disabled = false); }
         }
 
         async function changePassword(ev) {
@@ -913,11 +1025,11 @@
             const btn = document.getElementById('btn-change-pwd');
             btn.disabled = true; setMsg('msg-pwd', 'Mengemas kini...', true);
             try {
-                const r = await api({ action: 'change', token: sessionToken, current: cur, newPassword: np });
-                if (r.expired) return sessionExpired('msg-pwd');
+                const r = await api({ action: 'change', token: adminToken, current: cur, newPassword: np });
+                if (r.expired) return sessionExpired();
                 setMsg('msg-pwd', r.msg, r.ok);
                 if (r.ok) {
-                    sessionToken = r.token;
+                    adminToken = r.token;
                     ev.target.reset();
                     document.getElementById('must-change-notice').style.display = 'none';
                 }
@@ -926,18 +1038,18 @@
             } finally { btn.disabled = false; }
         }
 
-        function logoutAdmin(silent) {
-            if (sessionToken && silent !== true) api({ action: 'logout', token: sessionToken }).catch(() => {});
-            sessionToken = null;
+        function logoutAdmin() {
+            adminToken = null;
             document.getElementById('admin-password').value = '';
             document.querySelectorAll('#admin-panel form').forEach(f => f.reset());
             document.querySelectorAll('#admin-panel .form-msg').forEach(el => setMsg(el.id, ''));
             setMsg('password-msg', '');
             document.getElementById('password-screen').style.display = 'flex';
             document.getElementById('admin-panel').style.display = 'none';
+            updateMemberBtn(); loadData();
         }
 
-        document.addEventListener('DOMContentLoaded', () => { fetchDashboards(); fetchReferences(); });
+        document.addEventListener('DOMContentLoaded', () => { updateMemberBtn(); loadData(); });
     </script>
 </body>
 </html>
