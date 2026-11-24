@@ -554,6 +554,27 @@
         }
         .modal-box .form-control { margin-bottom: 10px; }
         @media (max-width: 900px) { .member-btn { margin-left: auto; } }
+        .card-actions { display: flex; gap: 0.6rem; }
+        .card-actions .btn-open { flex: 1; }
+        .btn-share {
+            background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 0 1rem; cursor: pointer; font-size: 1rem; transition: all 0.2s;
+            display: inline-flex; align-items: center; justify-content: center; font-family: inherit;
+        }
+        .btn-share:hover { background: var(--card-color, var(--primary)); border-color: var(--card-color, var(--primary)); }
+        .ref-actions { display: inline-flex; gap: 0.5rem; align-items: center; }
+        .ref-actions .btn-share { padding: 0.8rem 1rem; }
+        .share-url {
+            width: 100%; padding: 0.7rem 0.9rem; border-radius: 10px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;
+            font-family: inherit;
+        }
+        .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+        .share-grid .btn-primary { justify-content: center; font-size: 0.95rem; padding: 0.7rem 0.5rem; }
+        .btn-wa { background: #25D366; } .btn-wa:hover { background: #1da851; box-shadow: 0 5px 15px rgba(37,211,102,0.35); }
+        .btn-grey { background: rgba(255,255,255,0.1); } .btn-grey:hover { background: rgba(255,255,255,0.18); box-shadow: none; }
+        #share-qr { background: #fff; border-radius: 14px; padding: 14px; display: none; margin: 0 auto 0.75rem; width: fit-content; }
+        #share-qr img, #share-qr canvas { display: block; }
         .notice-warn {
             background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35);
             color: #fde68a; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none;
@@ -576,6 +597,25 @@
             <p class="form-msg" id="member-msg"></p>
             <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.5rem;">Lupa kata laluan? Hubungi admin portal.</p>
             <button type="button" class="link-btn" onclick="closeMemberModal()">Tutup</button>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="share-modal" onclick="if(event.target===this) closeShare()">
+        <div class="modal-box" style="max-width: 420px;">
+            <i class="fa-solid fa-share-nodes" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 0.6rem;"></i>
+            <h3 id="share-title" style="margin-bottom: 1rem; line-height: 1.3;"></h3>
+            <input type="text" id="share-url" class="share-url" readonly onclick="this.select()">
+            <div class="share-grid">
+                <button class="btn-primary btn-grey" onclick="copyShareLink()"><i class="fa-regular fa-copy"></i> <span id="copy-label">Salin Pautan</span></button>
+                <button class="btn-primary btn-wa" onclick="shareWhatsApp()"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button class="btn-primary btn-blue" onclick="shareEmail()"><i class="fa-regular fa-envelope"></i> Emel</button>
+                <button class="btn-primary" onclick="toggleQR()"><i class="fa-solid fa-qrcode"></i> Kod QR</button>
+            </div>
+            <div id="share-qr"></div>
+            <button class="btn-primary btn-green" id="btn-qr-download" onclick="downloadQR()" style="display:none; margin: 0 auto 0.5rem;"><i class="fa-solid fa-download"></i> Muat Turun QR</button>
+            <button class="btn-primary btn-grey" id="btn-native-share" onclick="shareNative()" style="display:none; width:100%; justify-content:center; margin-bottom:0.5rem;"><i class="fa-solid fa-arrow-up-from-bracket"></i> Kongsi melalui aplikasi lain</button>
+            <p class="form-msg" id="share-msg"></p>
+            <button type="button" class="link-btn" onclick="closeShare()">Tutup</button>
         </div>
     </div>
 
@@ -891,6 +931,7 @@
                     const r = await api({ action: 'data', token: adminToken || memberToken || '' });
                     if (!r.ok) throw new Error(r.msg);
                     if (r.tokenInvalid && !adminToken && memberToken) { saveMemberToken(null); updateMemberBtn(); }
+                    canShare = r.role === 'member' || r.role === 'admin';
                     renderDashboards(r.dashboards || [], r.announcement || '');
                     renderReferences(r.references || []);
                 } catch (e) {
@@ -904,7 +945,111 @@
             return loading;
         }
 
+        // 8. KONGSI PAUTAN (ahli Unit NCD & admin sahaja)
+        let canShare = false;
+        let shareItems = [];
+        let currentShare = null;
+        const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+
+        function shareBtn(item) {
+            if (!canShare || item.dalaman) return '';   // pautan Dalaman tidak boleh dikongsi
+            const i = shareItems.push(item) - 1;
+            return `<button class="btn-share" onclick="openShare(${i})" title="Kongsi pautan" aria-label="Kongsi pautan"><i class="fa-solid fa-share-nodes"></i></button>`;
+        }
+
+        function openShare(i) {
+            currentShare = shareItems[i];
+            if (!currentShare || currentShare.dalaman) return;
+            document.getElementById('share-title').textContent = currentShare.nama;
+            document.getElementById('share-url').value = currentShare.url;
+            document.getElementById('copy-label').textContent = 'Salin Pautan';
+            const qr = document.getElementById('share-qr');
+            qr.innerHTML = ''; qr.style.display = 'none';
+            document.getElementById('btn-qr-download').style.display = 'none';
+            document.getElementById('btn-native-share').style.display = navigator.share ? 'flex' : 'none';
+            setMsg('share-msg', '');
+            document.getElementById('share-modal').classList.add('open');
+        }
+
+        function closeShare() { document.getElementById('share-modal').classList.remove('open'); currentShare = null; }
+
+        function shareText() { return `${currentShare.nama}\n${currentShare.url}`; }
+
+        async function copyShareLink() {
+            const url = currentShare.url;
+            try { await navigator.clipboard.writeText(url); }
+            catch (e) {
+                const el = document.getElementById('share-url'); el.select(); document.execCommand('copy');
+            }
+            document.getElementById('copy-label').textContent = 'Disalin ✓';
+        }
+
+        function shareWhatsApp() {
+            window.open('https://wa.me/?text=' + encodeURIComponent(shareText()), '_blank', 'noopener');
+        }
+
+        function shareEmail() {
+            window.location.href = 'mailto:?subject=' + encodeURIComponent(currentShare.nama) +
+                '&body=' + encodeURIComponent('Assalamualaikum,\n\nBerikut pautan untuk ' + currentShare.nama + ':\n' + currentShare.url + '\n\nUnit NCD JKN Kedah');
+        }
+
+        async function shareNative() {
+            try { await navigator.share({ title: currentShare.nama, text: currentShare.nama, url: currentShare.url }); } catch (e) {}
+        }
+
+        function loadQRLib() {
+            if (window.QRCode) return Promise.resolve();
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = QR_LIB; s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+
+        async function toggleQR() {
+            const qr = document.getElementById('share-qr'), dl = document.getElementById('btn-qr-download');
+            if (qr.style.display === 'block') { qr.style.display = 'none'; dl.style.display = 'none'; return; }
+            try {
+                await loadQRLib();
+                qr.innerHTML = '';
+                new QRCode(qr, { text: currentShare.url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+                qr.style.display = 'block'; dl.style.display = 'inline-flex';
+            } catch (e) {
+                setMsg('share-msg', 'Gagal memuat penjana QR. Semak sambungan internet.', false);
+            }
+        }
+
+        // Muat turun QR berserta nama portal di bawahnya
+        function downloadQR() {
+            const src = document.querySelector('#share-qr canvas');
+            if (!src) return;
+            const pad = 30, size = src.width, W = size + pad * 2;
+            const ctx0 = document.createElement('canvas').getContext('2d');
+            ctx0.font = '600 18px Outfit, sans-serif';
+            const words = currentShare.nama.split(/\s+/), lines = [];
+            let line = '';
+            words.forEach(w => {
+                const test = line ? line + ' ' + w : w;
+                if (ctx0.measureText(test).width > W - pad * 2 && line) { lines.push(line); line = w; } else line = test;
+            });
+            if (line) lines.push(line);
+            const H = size + pad * 2 + lines.length * 24 + 34;
+            const c = document.createElement('canvas'); c.width = W; c.height = H;
+            const ctx = c.getContext('2d');
+            ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+            ctx.drawImage(src, pad, pad);
+            ctx.fillStyle = '#1e1b2e'; ctx.textAlign = 'center'; ctx.font = '600 18px Outfit, sans-serif';
+            lines.forEach((l, i) => ctx.fillText(l, W / 2, size + pad + 28 + i * 24));
+            ctx.fillStyle = '#6b7280'; ctx.font = '13px Outfit, sans-serif';
+            ctx.fillText('Unit NCD JKN Kedah', W / 2, H - 16);
+            const a = document.createElement('a');
+            a.download = 'QR_' + currentShare.nama.replace(/[^a-z0-9]+/gi, '_').slice(0, 50) + '.png';
+            a.href = c.toDataURL('image/png');
+            a.click();
+        }
+
         function renderDashboards(items, announcement) {
+            shareItems = [];
             const banner = document.getElementById('announcement-banner');
             if (announcement) {
                 document.getElementById('announcement-text-display').textContent = announcement;
@@ -915,7 +1060,7 @@
             items.forEach(d => {
                 const url = safeUrl(d.url);
                 if (!url) return;
-                html += `<div class="card" style="--card-color: ${safeColor(d.warna)};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(d.ikon)}"></i></div>${d.dalaman ? BADGE : ''}</div><div class="card-title">${esc(d.nama)}</div><div class="card-desc">${esc(d.penerangan)}</div><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a></div>`;
+                html += `<div class="card" style="--card-color: ${safeColor(d.warna)};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(d.ikon)}"></i></div>${d.dalaman ? BADGE : ''}</div><div class="card-title">${esc(d.nama)}</div><div class="card-desc">${esc(d.penerangan)}</div><div class="card-actions"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a>${shareBtn({ nama: d.nama, url, dalaman: d.dalaman })}</div></div>`;
             });
             document.getElementById('dashboard-container').innerHTML = html || '<p style="color:var(--text-muted)">Tiada dashboard untuk dipaparkan.</p>';
         }
@@ -926,7 +1071,7 @@
                 const url = safeUrl(x.url);
                 if (!url) return;
                 n++;
-                html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(x.nama)} ${x.dalaman ? BADGE : ''}</td><td style="padding:1rem; text-align:center;"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a></td></tr>`;
+                html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(x.nama)} ${x.dalaman ? BADGE : ''}</td><td style="padding:1rem; text-align:center;"><span class="ref-actions"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a>${shareBtn({ nama: x.nama, url, dalaman: x.dalaman })}</span></td></tr>`;
             });
             document.getElementById('references-tbody').innerHTML = html || '<tr><td colspan="3" style="padding:1rem; color:var(--text-muted)">Tiada rujukan.</td></tr>';
             document.getElementById('references-container').style.display = 'block';
@@ -1049,6 +1194,7 @@
             updateMemberBtn(); loadData();
         }
 
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeShare(); closeMemberModal(); } });
         document.addEventListener('DOMContentLoaded', () => { updateMemberBtn(); loadData(); });
     </script>
 </body>
