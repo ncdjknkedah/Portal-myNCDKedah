@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyNCDKedah</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0b0714">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MyNCDKedah">
+    <link rel="apple-touch-icon" href="./icon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #a855f7;
+            --primary-dark: #9333ea;
+            --bg-color: #0b0714;
+            --card-bg: rgba(25, 20, 35, 0.6);
+            --card-border: rgba(168, 85, 247, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --sidebar-bg: rgba(11, 7, 20, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(147, 51, 234, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-main);
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* App Layout */
+        .app-wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 200;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: #fff;
+            padding: 5px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c084fc, #e879f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 1.5rem 1rem;
+            flex: 1;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 1.05rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        
+        .sidebar-nav a.active {
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.2), transparent);
+            border-left: 3px solid var(--primary);
+            color: #fff;
+        }
+
+        .sidebar-nav a:hover i {
+            transform: scale(1.1);
+            color: var(--primary);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: auto;
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 150;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Main Content Area */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: calc(100% - 280px);
+            transition: margin 0.3s;
+        }
+
+        /* Header */
+        header {
+            background: rgba(11, 7, 20, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 1.5rem;
+        }
+
+        .header-date {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-header {
+            margin-bottom: 2.5rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Views */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading Spinner */
+        #loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(168, 85, 247, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(236, 72, 153, 0.15));
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            display: none; /* hidden by default */
+        }
+        
+        .announcement-icon {
+            font-size: 1.8rem;
+            color: #f472b6;
+            text-shadow: 0 0 15px rgba(244, 114, 182, 0.5);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .announcement-marquee {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+        }
+        
+        .announcement-text {
+            color: #f8fafc;
+            font-size: 1.1rem;
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left 25s linear infinite;
+        }
+
+        .announcement-marquee:hover .announcement-text {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Error state */
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: none;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Card */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.75rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+        }
+
+        .card-glow {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--card-color, var(--primary));
+            opacity: 0.7;
+            transition: opacity 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover .card-glow {
+            opacity: 1;
+            box-shadow: 0 0 20px var(--card-color, var(--primary));
+        }
+
+        .card-header-flex {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--card-color, var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+            text-shadow: 0 0 10px var(--card-color, var(--primary));
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            color: #fff;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .btn-open {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            text-decoration: none;
+            padding: 0.85rem 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.6rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-open:hover {
+            background: var(--card-color, var(--primary));
+            border-color: var(--card-color, var(--primary));
+            color: #fff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 20px -5px var(--card-color, var(--primary));
+        }
+
+        /* Settings Forms */
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        select.form-control option {
+            background-color: #0b0714;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-green { background: #0F9D58; }
+        .btn-green:hover { background: #0b8043; box-shadow: 0 5px 15px rgba(15, 157, 88, 0.4); }
+
+        .btn-blue { background: #3b82f6; }
+        .btn-blue:hover { background: #2563eb; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+
+        .settings-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        #password-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 4rem 2rem; background: var(--card-bg); border-radius: 20px;
+            border: 1px solid var(--card-border); max-width: 400px; margin: 0 auto; text-align: center;
+        }
+
+        .iframe-container {
+            width: 100%; height: 70vh; border-radius: 20px; overflow: hidden;
+            border: 1px solid var(--card-border); background: #fff;
+        }
+        
+        .calendar-notice {
+            background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; width: 100%; }
+            .menu-btn { display: block; }
+            .header-date { display: none; }
+            main { padding: 1.5rem 1rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Tambahan: borang admin & mesej status */
+        .settings-card h3 { margin-bottom: 1rem; }
+        .settings-card .form-control { margin-bottom: 10px; }
+        .form-msg { margin-top: 0.75rem; font-size: 0.95rem; min-height: 1.2em; }
+        .form-msg.ok { color: #34d399; }
+        .form-msg.err { color: #f87171; }
+        .link-btn {
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 0.9rem; margin-top: 1rem; text-decoration: underline; font-family: inherit;
+        }
+        .link-btn:hover { color: #fff; }
+        .btn-primary:disabled { opacity: 0.6; cursor: wait; }
+        .notice-warn {
+            background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35);
+            color: #fde68a; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <img src="./icon.png" alt="MyNCDKedah Icon" class="sidebar-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <i class="fa-solid fa-layer-group" style="font-size: 3rem; color: #c084fc; display: none;"></i>
+                <h2>MyNCDKedah</h2>
+            </div>
+
+            <ul class="sidebar-nav">
+                <li><a class="nav-link active" data-target="view-dashboard" onclick="switchView('view-dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard NCD</a></li>
+                <li><a class="nav-link" data-target="view-calendar" onclick="switchView('view-calendar', this)"><i class="fa-regular fa-calendar-days"></i> Kalendar NCD</a></li>
+                <li><a class="nav-link" data-target="view-references" onclick="switchView('view-references', this)"><i class="fa-solid fa-book-bookmark"></i> Koleksi Rujukan</a></li>
+                <li><a class="nav-link" data-target="view-settings" onclick="switchView('view-settings', this)"><i class="fa-solid fa-gear"></i> Tetapan</a></li>
+                <li style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <a id="sidebar-install-btn"><i class="fa-solid fa-mobile-screen"></i> Simpan Sebagai App</a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                &copy; 2026 JKN Kedah<br>Unit Kawalan Penyakit Tidak Berjangkit
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header>
+                <button class="menu-btn" onclick="toggleSidebar()" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+                <div style="font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">MyNCDKedah</div>
+                <div class="header-date" id="current-date">--</div>
+            </header>
+
+            <main>
+                <!-- DASHBOARD -->
+                <div id="view-dashboard" class="view-section active">
+                    <div class="section-header"><h2>Koleksi Dashboard NCD</h2><p>Akses pantas dashboard pemantauan.</p></div>
+                    <div id="loader"><div class="spinner"></div><p>Memuat turun data...</p></div>
+                    <div class="error-state" id="error-box"><h3>Gagal Memuat Turun Data</h3><p style="margin-top:0.5rem">Sila semak sambungan internet dan cuba lagi.</p></div>
+                    <div class="announcement-banner" id="announcement-banner">
+                        <i class="fa-solid fa-bullhorn announcement-icon"></i>
+                        <div class="announcement-marquee"><div class="announcement-text" id="announcement-text-display"></div></div>
+                    </div>
+                    <div class="dashboard-grid" id="dashboard-container"></div>
+                </div>
+
+                <!-- KALENDAR -->
+                <div id="view-calendar" class="view-section">
+                    <div class="section-header"><h2>Kalendar Unit NCD</h2></div>
+                    <div class="calendar-notice">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <div style="flex: 1;">Jadual rasmi aktiviti Unit NCD JKN Kedah.</div>
+                        <a href="https://calendar.google.com/calendar/embed?src=ncdjkn.kdh@moh.gov.my&ctz=Asia/Kuala_Lumpur" target="_blank" rel="noopener" class="btn-primary" style="padding: 0.5rem 1rem;">Buka Tab Baru</a>
+                    </div>
+                    <div class="iframe-container">
+                        <iframe src="https://calendar.google.com/calendar/embed?src=bmNkamtuLmtkaEBtb2guZ292Lm15&color=%23039BE5&ctz=Asia/Kuala_Lumpur" style="border-width:0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
+                    </div>
+                </div>
+
+                <!-- RUJUKAN -->
+                <div id="view-references" class="view-section">
+                    <div class="section-header"><h2>Koleksi Rujukan NCD</h2></div>
+                    <div id="loader-references"><div class="spinner"></div></div>
+                    <div class="error-state" id="error-box-ref"><h3>Gagal Memuat Turun Rujukan</h3></div>
+                    <div id="references-search-box" style="display:none; margin-bottom:1.5rem; background:var(--card-bg); padding:1rem; border-radius:15px;">
+                        <input type="text" id="search-references" oninput="filterReferences()" placeholder="Cari rujukan..." class="form-control">
+                    </div>
+                    <div class="table-responsive" style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--card-border); padding: 1.5rem; display: none; overflow-x: auto;" id="references-container">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;" id="references-table">
+                            <thead><tr style="border-bottom: 1px solid rgba(255,255,255,0.1);"><th style="padding: 1rem; color: var(--primary);">Bil</th><th style="padding: 1rem; color: var(--primary);">Koleksi Bahan</th><th style="padding: 1rem;"></th></tr></thead>
+                            <tbody id="references-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TETAPAN -->
+                <div id="view-settings" class="view-section">
+                    <div id="password-screen">
+                        <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <h3>Akses Admin</h3><br>
+                        <form onsubmit="checkPassword(event)" style="width:100%">
+                            <input type="password" id="admin-password" class="form-control" placeholder="Kata laluan" autocomplete="current-password" required>
+                            <button type="submit" id="btn-login" class="btn-primary" style="margin-top:10px">Log Masuk</button>
+                        </form>
+                        <p id="password-msg" class="form-msg"></p>
+                        <button type="button" class="link-btn" onclick="forgotPassword()">Lupa kata laluan?</button>
+                    </div>
+
+                    <div id="admin-panel" style="display: none;">
+                        <div class="notice-warn" id="must-change-notice">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            Anda log masuk menggunakan kata laluan sementara. Sila tukar kata laluan di bahagian bawah.
+                        </div>
+
+                        <div class="settings-card" style="text-align: center;">
+                            <i class="fa-solid fa-database" style="color: #10b981; font-size: 3.5rem;"></i>
+                            <h3 style="margin-top:1rem">Pangkalan Data</h3>
+                            <a href="#" id="btn-open-sheet" target="_blank" rel="noopener" class="btn-primary btn-green"><i class="fa-solid fa-file-excel"></i> Buka Google Sheets</a>
+                        </div>
+
+                        <form onsubmit="handleAdd(event, 'Sheet1', 'btn-submit-form', 'msg-sheet1')" class="settings-card">
+                            <h3>+ Tambah Dashboard (Sheet1)</h3>
+                            <input type="text" name="nama" class="form-control" placeholder="Nama Dashboard" maxlength="100" required>
+                            <input type="text" name="penerangan" class="form-control" placeholder="Penerangan" maxlength="300">
+                            <input type="url" name="url" class="form-control" placeholder="URL Pautan (https://...)" pattern="https://.+" required>
+                            <div style="display: flex; gap: 10px;">
+                                <select name="ikon" class="form-control">
+                                    <option value="fa-chart-pie">Carta</option>
+                                    <option value="fa-brain">Mental</option>
+                                    <option value="fa-heart-pulse">KOSPEN</option>
+                                    <option value="fa-user-doctor">Doktor</option>
+                                    <option value="fa-capsules">Ubat</option>
+                                    <option value="fa-droplet">Fluid</option>
+                                    <option value="fa-weight-scale">Weighing Scale</option>
+                                    <option value="fa-apple-whole">Diet Sihat</option>
+                                    <option value="fa-person-running">Kecergasan</option>
+                                    <option value="fa-hospital">Fasiliti</option>
+                                    <option value="fa-sheet-plastic">Rekod</option>
+                                </select>
+                                <input type="color" name="warna" class="form-control" value="#a855f7" style="height:48px">
+                            </div>
+                            <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top:5px">Hantar ke Sheet1</button>
+                            <p class="form-msg" id="msg-sheet1"></p>
+                        </form>
+
+                        <form onsubmit="handleAdd(event, 'Sheet2', 'btn-submit-ref', 'msg-sheet2')" class="settings-card">
+                            <h3>+ Tambah Rujukan (Sheet2)</h3>
+                            <input type="text" name="Nama" class="form-control" placeholder="Nama Bahan" maxlength="200" required>
+                            <input type="url" name="URL" class="form-control" placeholder="URL Drive/PDF (https://...)" pattern="https://.+" required>
+                            <button type="submit" id="btn-submit-ref" class="btn-primary btn-blue" style="margin-top:5px">Tambah ke Sheet2</button>
+                            <p class="form-msg" id="msg-sheet2"></p>
+                        </form>
+
+                        <form onsubmit="changePassword(event)" class="settings-card" id="change-pwd-card">
+                            <h3><i class="fa-solid fa-key"></i> Tukar Kata Laluan</h3>
+                            <input type="password" id="pwd-current" class="form-control" placeholder="Kata laluan semasa" autocomplete="current-password" required>
+                            <input type="password" id="pwd-new" class="form-control" placeholder="Kata laluan baharu (min. 8 aksara)" minlength="8" autocomplete="new-password" required>
+                            <input type="password" id="pwd-confirm" class="form-control" placeholder="Sahkan kata laluan baharu" minlength="8" autocomplete="new-password" required>
+                            <button type="submit" id="btn-change-pwd" class="btn-primary" style="margin-top:5px">Tukar Kata Laluan</button>
+                            <p class="form-msg" id="msg-pwd"></p>
+                        </form>
+
+                        <button onclick="logoutAdmin()" class="btn-open" style="max-width: 200px; margin: 0 auto;">Log Keluar</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 1. PENDAFTARAN SERVICE WORKER (LOGIK PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                if (confirm("Versi baru tersedia! Muat semula?")) window.location.reload();
+                            }
+                        };
+                    };
+                }).catch(() => {});
+            });
+        }
+
+        // 2. LOGIK BUTANG "SIMPAN SEBAGAI APP"
+        let deferredPrompt;
+        const installBtn = document.getElementById('sidebar-install-btn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'flex';
+        });
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            } else {
+                alert("Sila gunakan menu 'Add to Home Screen' pada pelayar web anda.");
+            }
+        });
+
+        // 3. KONFIGURASI
+        const GOOGLE_SHEET_ID = '16GdJau70U9LyNpGsCKZjcqUawUhvKycU6YV0FSpImuA';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyPjuIjgHDIdAreZ93Jjg7AahK2ZhjGAUaZkOUHakbrRS4X5cKGNyjkwU36tPXoCgOWxg/exec';
+        const EDIT_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
+        const EMAIL_UNIT = 'ncdjkn.kdh@moh.gov.my';
+
+        document.getElementById('btn-open-sheet').href = EDIT_URL;
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // 4. UTILITI KESELAMATAN — semua data dari Sheet ditapis sebelum dipaparkan
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const safeUrl = u => { u = String(u || '').trim(); return /^https?:\/\/[^\s"'<>]+$/i.test(u) ? u : ''; };
+        const safeColor = c => /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(c || '').trim()) ? String(c).trim() : '#a855f7';
+        const safeIcon = i => /^fa-[a-z0-9-]{1,40}$/.test(String(i || '').trim()) ? String(i).trim() : 'fa-chart-line';
+
+        // Baca Sheet melalui gviz (headers=1 → baris tajuk sentiasa dikecualikan)
+        async function fetchSheet(sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&headers=1&sheet=${encodeURIComponent(sheetName)}`;
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const text = await res.text();
+            const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+            if (json.status === 'error' || !json.table) throw new Error('Sheet tidak dapat dibaca');
+            return json.table.rows.map(r => (r.c || []).map(c => (c && c.v != null) ? String(c.v) : ''));
+        }
+
+        // Panggil Apps Script (form-urlencoded → tiada CORS preflight)
+        async function api(params) {
+            const res = await fetch(API_URL, { method: 'POST', body: new URLSearchParams(params) });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
+        function setMsg(id, text, ok) {
+            const el = document.getElementById(id);
+            el.textContent = text || '';
+            el.className = 'form-msg' + (text ? (ok ? ' ok' : ' err') : '');
+        }
+
+        // 5. FUNGSI UI & PAPARAN DATA
+        function toggleSidebar() {
+            if (window.innerWidth <= 900) {
+                document.getElementById('sidebar').classList.toggle('open');
+                document.getElementById('sidebarOverlay').classList.toggle('active');
+            }
+        }
+
+        function switchView(targetId, element) {
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            if (window.innerWidth <= 900) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+            if (targetId === 'view-dashboard') fetchDashboards();
+            if (targetId === 'view-references') fetchReferences();
+        }
+
+        async function fetchDashboards() {
+            const container = document.getElementById('dashboard-container');
+            const loader = document.getElementById('loader');
+            const errorBox = document.getElementById('error-box');
+            const banner = document.getElementById('announcement-banner');
+            container.innerHTML = ''; loader.style.display = 'flex';
+            errorBox.style.display = 'none'; banner.style.display = 'none';
+            try {
+                const rows = await fetchSheet('Sheet1');
+                let html = '';
+                rows.forEach(c => {
+                    const nama = (c[0] || '').trim();
+                    if (!nama) return;
+                    if (nama === 'PESANAN_ADMIN') {
+                        if (c[1]) {
+                            document.getElementById('announcement-text-display').textContent = c[1];
+                            banner.style.display = 'flex';
+                        }
+                        return;
+                    }
+                    const url = safeUrl(c[2]);
+                    if (!url) return;
+                    html += `<div class="card" style="--card-color: ${safeColor(c[4])};"><div class="card-glow"></div><div class="card-header-flex"><div class="card-icon"><i class="fa-solid ${safeIcon(c[3])}"></i></div></div><div class="card-title">${esc(nama)}</div><div class="card-desc">${esc(c[1])}</div><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-open">Buka Aplikasi</a></div>`;
+                });
+                container.innerHTML = html || '<p style="color:var(--text-muted)">Tiada dashboard untuk dipaparkan.</p>';
+            } catch (e) {
+                errorBox.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        async function fetchReferences() {
+            const tbody = document.getElementById('references-tbody');
+            const loader = document.getElementById('loader-references');
+            const errorBox = document.getElementById('error-box-ref');
+            tbody.innerHTML = ''; loader.style.display = 'flex'; errorBox.style.display = 'none';
+            try {
+                const rows = await fetchSheet('Sheet2');
+                let html = '', n = 0;
+                rows.forEach(c => {
+                    const nama = (c[0] || '').trim();
+                    const url = safeUrl(c[1]);
+                    if (!nama || !url) return;
+                    n++;
+                    html += `<tr class="reference-row"><td style="padding:1rem">${n}</td><td style="padding:1rem" class="ref-name">${esc(nama)}</td><td style="padding:1rem; text-align:center;"><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-primary btn-green">Buka</a></td></tr>`;
+                });
+                tbody.innerHTML = html || '<tr><td colspan="3" style="padding:1rem; color:var(--text-muted)">Tiada rujukan.</td></tr>';
+                document.getElementById('references-container').style.display = 'block';
+                document.getElementById('references-search-box').style.display = 'block';
+                filterReferences();
+            } catch (e) {
+                errorBox.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function filterReferences() {
+            const q = document.getElementById('search-references').value.toLowerCase();
+            document.querySelectorAll('.reference-row').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        // 6. ADMIN — semakan kata laluan dibuat di Apps Script, bukan di sini
+        let sessionToken = null;
+
+        async function checkPassword(ev) {
+            ev.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const input = document.getElementById('admin-password');
+            btn.disabled = true; setMsg('password-msg', 'Menyemak...', true);
+            try {
+                const r = await api({ action: 'login', password: input.value });
+                if (r.ok) {
+                    sessionToken = r.token;
+                    input.value = ''; setMsg('password-msg', '');
+                    document.getElementById('password-screen').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('must-change-notice').style.display = r.mustChange ? 'block' : 'none';
+                    if (r.mustChange) document.getElementById('change-pwd-card').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    setMsg('password-msg', r.msg || 'Log masuk gagal.', false);
+                }
+            } catch (e) {
+                setMsg('password-msg', 'Tidak dapat menghubungi pelayan. Cuba lagi.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        async function forgotPassword() {
+            if (!confirm(`Hantar kata laluan sementara ke emel unit (${EMAIL_UNIT})?\n\nKata laluan sedia ada masih boleh digunakan sehingga kata laluan sementara digunakan.`)) return;
+            setMsg('password-msg', 'Menghantar...', true);
+            try {
+                const r = await api({ action: 'reset' });
+                setMsg('password-msg', r.msg, r.ok);
+            } catch (e) {
+                setMsg('password-msg', 'Tidak dapat menghubungi pelayan. Cuba lagi.', false);
+            }
+        }
+
+        function sessionExpired(msgId) {
+            logoutAdmin(true);
+            setMsg('password-msg', 'Sesi tamat. Sila log masuk semula.', false);
+        }
+
+        async function handleAdd(ev, sheet, btnId, msgId) {
+            ev.preventDefault();
+            const form = ev.target, btn = document.getElementById(btnId);
+            const params = Object.fromEntries(new FormData(form).entries());
+            Object.assign(params, { action: 'add', sheet, token: sessionToken });
+            btn.disabled = true; setMsg(msgId, 'Menghantar...', true);
+            try {
+                const r = await api(params);
+                if (r.expired) return sessionExpired(msgId);
+                setMsg(msgId, r.msg, r.ok);
+                if (r.ok) {
+                    form.reset();
+                    if (sheet === 'Sheet1') fetchDashboards(); else fetchReferences();
+                }
+            } catch (e) {
+                setMsg(msgId, 'Gagal menghantar. Semak sambungan dan cuba lagi.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        async function changePassword(ev) {
+            ev.preventDefault();
+            const cur = document.getElementById('pwd-current').value;
+            const np = document.getElementById('pwd-new').value;
+            const cf = document.getElementById('pwd-confirm').value;
+            if (np !== cf) return setMsg('msg-pwd', 'Pengesahan kata laluan tidak sepadan.', false);
+            const btn = document.getElementById('btn-change-pwd');
+            btn.disabled = true; setMsg('msg-pwd', 'Mengemas kini...', true);
+            try {
+                const r = await api({ action: 'change', token: sessionToken, current: cur, newPassword: np });
+                if (r.expired) return sessionExpired('msg-pwd');
+                setMsg('msg-pwd', r.msg, r.ok);
+                if (r.ok) {
+                    sessionToken = r.token;
+                    ev.target.reset();
+                    document.getElementById('must-change-notice').style.display = 'none';
+                }
+            } catch (e) {
+                setMsg('msg-pwd', 'Gagal menghubungi pelayan.', false);
+            } finally { btn.disabled = false; }
+        }
+
+        function logoutAdmin(silent) {
+            if (sessionToken && silent !== true) api({ action: 'logout', token: sessionToken }).catch(() => {});
+            sessionToken = null;
+            document.getElementById('admin-password').value = '';
+            document.querySelectorAll('#admin-panel form').forEach(f => f.reset());
+            document.querySelectorAll('#admin-panel .form-msg').forEach(el => setMsg(el.id, ''));
+            setMsg('password-msg', '');
+            document.getElementById('password-screen').style.display = 'flex';
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { fetchDashboards(); fetchReferences(); });
+    </script>
+</body>
+</html>
