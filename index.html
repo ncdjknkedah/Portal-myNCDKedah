@@ -575,6 +575,14 @@
         .btn-grey { background: rgba(255,255,255,0.1); } .btn-grey:hover { background: rgba(255,255,255,0.18); box-shadow: none; }
         #share-qr { background: #fff; border-radius: 14px; padding: 14px; display: none; margin: 0 auto 0.75rem; width: fit-content; }
         #share-qr img, #share-qr canvas { display: block; }
+        .pw-wrap { position: relative; width: 100%; margin-bottom: 10px; }
+        .pw-wrap .form-control { padding-right: 3rem; margin-bottom: 0 !important; }
+        .pw-toggle {
+            position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            font-size: 1.05rem; padding: 0.5rem; line-height: 1;
+        }
+        .pw-toggle:hover { color: #fff; }
         .notice-warn {
             background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35);
             color: #fde68a; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: none;
@@ -884,6 +892,7 @@
 
         function closeMemberModal() {
             document.getElementById('member-modal').classList.remove('open');
+            hideAllPasswords();
             document.getElementById('member-password').value = '';
         }
 
@@ -1185,6 +1194,7 @@
 
         function logoutAdmin() {
             adminToken = null;
+            hideAllPasswords();
             document.getElementById('admin-password').value = '';
             document.querySelectorAll('#admin-panel form').forEach(f => f.reset());
             document.querySelectorAll('#admin-panel .form-msg').forEach(el => setMsg(el.id, ''));
@@ -1193,6 +1203,38 @@
             document.getElementById('admin-panel').style.display = 'none';
             updateMemberBtn(); loadData();
         }
+
+        // Ikon mata untuk semua medan kata laluan
+        function addPasswordToggles() {
+            document.querySelectorAll('input[type="password"]').forEach(input => {
+                if (input.parentElement.classList.contains('pw-wrap')) return;
+                const wrap = document.createElement('div');
+                wrap.className = 'pw-wrap';
+                input.parentNode.insertBefore(wrap, input);
+                wrap.appendChild(input);
+                const btn = document.createElement('button');
+                btn.type = 'button'; btn.className = 'pw-toggle';
+                btn.setAttribute('aria-label', 'Tunjuk kata laluan'); btn.title = 'Tunjuk kata laluan';
+                btn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+                btn.addEventListener('click', () => {
+                    const show = input.type === 'password';
+                    input.type = show ? 'text' : 'password';
+                    btn.innerHTML = show ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+                    btn.title = show ? 'Sembunyi kata laluan' : 'Tunjuk kata laluan';
+                    btn.setAttribute('aria-label', btn.title);
+                    input.focus();
+                });
+                wrap.appendChild(btn);
+            });
+        }
+        // Sembunyikan semula kata laluan bila borang ditutup/log keluar
+        function hideAllPasswords() {
+            document.querySelectorAll('.pw-wrap').forEach(w => {
+                const i = w.querySelector('input'), b = w.querySelector('.pw-toggle');
+                i.type = 'password'; b.innerHTML = '<i class="fa-regular fa-eye"></i>'; b.title = 'Tunjuk kata laluan';
+            });
+        }
+        addPasswordToggles();
 
         document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeShare(); closeMemberModal(); } });
         document.addEventListener('DOMContentLoaded', () => { updateMemberBtn(); loadData(); });
